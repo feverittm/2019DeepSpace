@@ -29,8 +29,10 @@ public class DriveTrain extends Subsystem {
 
   public boolean decell = true;
 
+  public double maxSpeed = 0.5;
+
   // Decell Data
-  private double ramp = 4.0;
+  public double ramp = 1.1;
   private double prevY = 0;
   private double init_angle;
   public boolean gyropresent = false;
@@ -152,8 +154,8 @@ public class DriveTrain extends Subsystem {
       newY = (maxIncrement * sign) + prevY;
     }
 
-    if (Math.abs(newY) > 0.6) {
-      newY = (Math.abs(newY) / newY) * 0.6;
+    if (Math.abs(newY) > maxSpeed) {
+      newY = (Math.abs(newY) / newY) * maxSpeed;
     }
 
     leftTalon.set(ControlMode.PercentOutput, newY + turn);
@@ -224,12 +226,12 @@ public class DriveTrain extends Subsystem {
   }
 
   public double getHeading() {
-    if (gyro != null) {
-      return (gyro.getAngle() - init_angle);
-    } else {
-      return 0.0;
-    }
-  }
+		if (gyro != null) {
+			return( gyro.getAngle() - init_angle );
+		} else {
+			return 0.0;
+		}
+	}
 
   /**
    * Gets PID constants from the SmartDashboard and then uses setPIDValues(double,

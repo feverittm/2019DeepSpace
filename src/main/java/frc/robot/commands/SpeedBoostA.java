@@ -8,34 +8,23 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.command.Command;
-import edu.wpi.first.wpilibj.command.Scheduler;
-import frc.robot.Robot;
+import frc.robot.misc.SecretSpeedBoost;
 
-public class DeployFrontLandingGear extends Command {
-  public DeployFrontLandingGear() {
-    requires(Robot.liftGear);
-  }
-  
+public class SpeedBoostA extends Command {
+  public SpeedBoostA() { }
+
   @Override
   protected void initialize() { }
-  
-  @Override
-  protected void execute() {
-    if (!Robot.liftGear.getFrontPistonState()) {
-      Robot.liftGear.extendFront();
-    }
-  }
-  
-  @Override
-  protected boolean isFinished() {
-    return true; //Robot.liftGear.getFrontIRSensorVoltage() < 0.4;
-  }
 
   @Override
-  protected void end() {
-    Scheduler.getInstance().add(new AutoRetractLandingGear());
-  }
-  
+  protected void execute() { SecretSpeedBoost.checkA = true; }
+
+  @Override
+  protected boolean isFinished() { return true; }
+
+  @Override
+  protected void end() { }
+
   @Override
   protected void interrupted() { }
 }

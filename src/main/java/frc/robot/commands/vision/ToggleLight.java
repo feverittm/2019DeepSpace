@@ -5,21 +5,13 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-package frc.robot.commands;
-import frc.robot.Robot;
-import frc.robot.RobotMap;
-import edu.wpi.first.wpilibj.command.Scheduler;
+package frc.robot.commands.vision;
 
 import edu.wpi.first.wpilibj.command.Command;
+import frc.robot.Robot;
 
-/**
- * Used for moving the elevator high enough to swap the arm's side if so required.
- */
-public class ElevatorToArmHeight extends Command {
-
-  public ElevatorToArmHeight() {
-    requires(Robot.elevator);
-    //this.tolerance = tolerance;
+public class ToggleLight extends Command {
+  public ToggleLight() {
     // Use requires() here to declare subsystem dependencies
     // eg. requires(chassis);
   }
@@ -32,22 +24,22 @@ public class ElevatorToArmHeight extends Command {
   // Called repeatedly when this Command is scheduled to run
   @Override
   protected void execute() {
-    Robot.elevator.SetPosition(RobotMap.Values.armSwitchHeight + 2250);
+    if (Robot.limeLight.getLED() == 1.0 || Robot.limeLight.getLED() == 0.0) {
+      Robot.limeLight.setLED(3);
+    } else {
+      Robot.limeLight.setLED(1);
+    }
   }
 
   // Make this return true when this Command no longer needs to run execute()
   @Override
   protected boolean isFinished() {
-    //return (Math.abs(RobotMap.Values.armSwitchHeight - Robot.elevator.GetPosition()) < tolerance);
-    return (Robot.elevator.GetPosition() >= RobotMap.Values.armSwitchHeight);
+    return true;
   }
 
   // Called once after isFinished returns true
   @Override
   protected void end() {
-    System.out.println("finished arm to height");
-    Robot.elevator.SetPower(0);
-    Scheduler.getInstance().add(new LockElevator());
   }
 
   // Called when another command which requires one or more of the same

@@ -61,7 +61,6 @@ public class SetRobotElevatorHeight extends Command {
                     setpoint = new ElevatorArmSetpoint(RobotMap.ElevatorHeights.elevatorFrontBottomHatchHeight, 0);
                     break;
                   case None:
-                    //TODO: add in what should happen when none
                     break;
                 }
                 break;
@@ -69,12 +68,10 @@ public class SetRobotElevatorHeight extends Command {
                 setpoint = new ElevatorArmSetpoint(RobotMap.ElevatorHeights.elevatorFrontShipHatchHeight, 0);
                 break;
               case None:
-                //TODO Add in case
                 break;
             }
             break;
           case None:
-            //TODO add in case
             break;
         }
         break;
@@ -101,7 +98,6 @@ public class SetRobotElevatorHeight extends Command {
                 setpoint = new ElevatorArmSetpoint(RobotMap.ElevatorHeights.elevatorBackShipCargoHeight, 180);
                 break;
               case None:
-                //TODO: add in case
                 break;
             }
             break;
@@ -119,7 +115,6 @@ public class SetRobotElevatorHeight extends Command {
                     setpoint = new ElevatorArmSetpoint(RobotMap.ElevatorHeights.elevatorBackBottomHatchHeight, 180);
                     break;
                   case None:
-                    //TODO: add in what should happen when none
                     break;
                 }
                 break;
@@ -127,17 +122,14 @@ public class SetRobotElevatorHeight extends Command {
                 setpoint = new ElevatorArmSetpoint(RobotMap.ElevatorHeights.elevatorBackShipHatchHeight, 180);
                 break;                
               case None:
-                //TODO: add in case
                 break;
             }
             break;
           case None:
-            //TODO: add in case
             break;
         }
         break;
       case None:
-        //TODO: add in case
         break;
     }
     if (setpoint != null) {

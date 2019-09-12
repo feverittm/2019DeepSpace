@@ -13,9 +13,6 @@ public class ElevatorArmSetpoint extends Command {
   private SetElevatorHeight e = null;
   private SetArmPosition a = null;
 
-  public ElevatorArmSetpoint() {
-  }
-
   /**
    * Sets the elevator and arm position in one command activity.
    * 

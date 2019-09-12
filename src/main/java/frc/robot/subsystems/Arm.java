@@ -1,10 +1,3 @@
-/*----------------------------------------------------------------------------*/
-/* Copyright (c) 2018 FIRST. All Rights Reserved.                             */
-/* Open Source Software - may be modified and shared by FRC teams. The code   */
-/* must be accompanied by the FIRST BSD license file in the root directory of */
-/* the project.                                                               */
-/*----------------------------------------------------------------------------*/
-
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.CANifier;
@@ -12,15 +5,20 @@ import com.ctre.phoenix.CANifier.PWMChannel;
 import com.ctre.phoenix.CANifier.GeneralPin;
 import com.revrobotics.CANPIDController;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANEncoder;
 import com.revrobotics.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+
 import frc.robot.Robot;
 import frc.robot.data.ArmData;
 import frc.robot.data.RobotState.ScoringDirectionStates;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.RobotMap;
+
+import frc.robot.misc.MiniPID;
+
 /**
  * Manage the Arm on the Elevator:
  * Need to encode the logic to prevent the arm from running into the elevator
@@ -42,9 +40,12 @@ import frc.robot.RobotMap;
  */
 public class Arm extends Subsystem {
 
+  public double setpoint = 0;
+
   public CANPIDController pidController;
 
   private CANSparkMax sparkMax;
+  private CANEncoder internalEncoder;
   private CANifier dataBus;
 
   private double armFrontLimit = RobotMap.Values.armFrontParallel;
@@ -55,26 +56,38 @@ public class Arm extends Subsystem {
   private double prevRead = -1;
   private int revs = 0;
   private int flipModifier = 1;
-  private double fConstant = RobotMap.Values.armMaxPidF;
+  private double fConstant = 0.002;
   public boolean armState;
+
+  public MiniPID miniBoi;
 
   public Arm() {
 
+    miniBoi = new MiniPID(0.0006, 0.0, 0.001, 0);
+    miniBoi.setOutputLimits(-0.4, 0.4);
+
     sparkMax = new CANSparkMax(RobotMap.Ports.armSpark, MotorType.kBrushless);
-    
+
     sparkMax.restoreFactoryDefaults();
 
     sparkMax.setInverted(true);
 
+    internalEncoder = sparkMax.getEncoder();
+    double conversionFactor = RobotMap.Values.internalFlipTickCount / (RobotMap.Values.armBackParallel - RobotMap.Values.armFrontParallel);
+    internalEncoder.setPositionConversionFactor(conversionFactor);
+
     //sparkMax.setOpenLoopRampRate(0);
 
     //sparkMax.setIdleMode(IdleMode.kBrake);
-    
+
     pidController = sparkMax.getPIDController();
     pidController.setP(RobotMap.Values.armPidP);
     pidController.setI(RobotMap.Values.armPidI);
     pidController.setD(RobotMap.Values.armPidD);
-    pidController.setOutputRange(-0.6, 0.6);
+    pidController.setFF(0);
+    pidController.setOutputRange(-0.8, 0.8);
+
+    pidController.setIAccum(0);
 
     pidController.setReference(0.0/*total - current*/, ControlType.kPosition);
 
@@ -82,10 +95,10 @@ public class Arm extends Subsystem {
 
     pidController.setReference(0.0, ControlType.kDutyCycle);
 
-    SmartDashboard.putNumber("Arm/Arm Pid P", RobotMap.Values.armPidP);
+    /*SmartDashboard.putNumber("Arm/Arm Pid P", RobotMap.Values.armPidP);
     SmartDashboard.putNumber("Arm/Arm Pid I", RobotMap.Values.armPidI);
     SmartDashboard.putNumber("Arm/Arm Pid D", RobotMap.Values.armPidD);
-    SmartDashboard.putNumber("Arm/Arm Pid F", RobotMap.Values.armMaxPidF);
+    SmartDashboard.putNumber("Arm/Arm Pid F", RobotMap.Values.armMaxPidF);*/
   }
 
   /**
@@ -100,7 +113,7 @@ public class Arm extends Subsystem {
     //1 - get the current arm angle and elevator height
     int m_height = Robot.elevator.GetPosition();
     double m_angle = this.readEncoder();
-    
+
     // 2 - check if we are trying to move to the other side
     if ((m_angle < RobotMap.Values.armVertical && 
             m_newangle < RobotMap.Values.armVertical) ||
@@ -142,9 +155,16 @@ public class Arm extends Subsystem {
     }
   }
 
+  public void resetPID() {
+    pidController.setIAccum(0);
+  }
+
   // This function only works if the inital read of the arm is horizontal
-  public void UpdateF(){
-     pidController.setFF((Math.abs(Math.cos(readEncoder() - RobotMap.Values.armFrontParallel) * RobotMap.Values.ticksToRadiansArm)) * fConstant);
+  public double UpdateF(){
+    //pidController.setFF(0);
+    double f = -1 * Math.cos(((readEncoder() - RobotMap.Values.armFrontParallel) * RobotMap.Values.ticksToRadiansArm)) * fConstant;
+    //pidController.setFF(f);
+    return f;
   }
 
   public double getCurrent() {
@@ -154,20 +174,30 @@ public class Arm extends Subsystem {
   public void SetPostion(double setpoint){
     //releaseBrake();
     //System.out.println("Setting arm position to " + setpoint);
-    pidController.setReference(setpoint - readEncoder(), ControlType.kPosition);
+    //internalEncoder.setPosition(readEncoder());
+    //pidController.setReference(setpoint, ControlType.kPosition);
+    //pidController.setReference(setpoint - readEncoder(), ControlType.kPosition);
+    this.setpoint = setpoint;
+    double actual = readEncoder();
+    double a = miniBoi.getOutput(actual, setpoint);
+    //SmartDashboard.putNumber("Arm/Error", setpoint - actual);
+    //SmartDashboard.putNumber("Arm/PID Output", a + UpdateF());
+    //SmartDashboard.putNumber("Arm/MiniPID Output", a);
+    sparkMax.set(a + UpdateF());
+
     //UpdateF();
   }
 
   public double readEncoder() {
     double newVal = getRawEncoder();
-    
+
     /*if (test) {
       newVal = testInput; // Read test input
     } else {
       newVal = getRawEncoder(); // Read encoder data
     }*/
 
-    if (prevRead == -1) { 
+    if (prevRead == -1) {
       prevRead = newVal;
     }
 
@@ -179,10 +209,10 @@ public class Arm extends Subsystem {
       }
     }
     prevRead = newVal;
-    return (int)((revs * MAX) + newVal);
+    return (double)((revs * MAX) + newVal);
   }
 
-  private int getRawEncoder() {
+  public double getRawEncoder() {
     double[] a = new double[2];
     dataBus.getPWMInput(PWMChannel.PWMChannel0, a);
     SmartDashboard.putNumber("Duty Cycle", a[1]);
@@ -241,20 +271,26 @@ public class Arm extends Subsystem {
   }
 
   public void updatePID() {
-    pidController.setP(SmartDashboard.getNumber("Arm Pid P", RobotMap.Values.armPidP));
-    pidController.setI(SmartDashboard.getNumber("Arm Pid I", RobotMap.Values.armPidI));
-    pidController.setD(SmartDashboard.getNumber("Arm Pid D", RobotMap.Values.armPidD));
-    fConstant = SmartDashboard.getNumber("Arm Pid F", RobotMap.Values.armMaxPidF);
+    //pidController.setP(SmartDashboard.getNumber("Arm Pid P", RobotMap.Values.armPidP));
+    //pidController.setI(SmartDashboard.getNumber("Arm Pid I", RobotMap.Values.armPidI));
+    //pidController.setD(SmartDashboard.getNumber("Arm Pid D", RobotMap.Values.armPidD));
+    //fConstant = SmartDashboard.getNumber("Arm Pid F", RobotMap.Values.armMaxPidF);
   }
 
   public void updateSmartDashboard() {
     SmartDashboard.putNumber("Arm/Arm Absolute Raw", getRawEncoder());
     SmartDashboard.putNumber("Arm/Absolute Parsed", readEncoder());
-    SmartDashboard.putBoolean("Arm/Arm forward limit switch", getForwardLimitSwitch());
+    SmartDashboard.putNumber("Arm Front Limit", getArmFrontLimit());
+    SmartDashboard.putNumber("Arm Angle", ((readEncoder() - RobotMap.Values.armFrontParallel) * RobotMap.Values.ticksToRadiansArm));
+    //SmartDashboard.putBoolean("Arm/Disc Brake state: ", discBrake.get());
+    //SmartDashboard.putBoolean("Arm/Arm forward limit switch", getForwardLimitSwitch());
 
     SmartDashboard.putNumber("Arm/Arm F", pidController.getFF());
+    //SmartDashboard.putBoolean("Arm/Arm Front Limit Switch", frontLimitSwitch.get());
+    //SmartDashboard.putBoolean("Arm/Arm Back Limit Switch", backLimitSwitch.get());
     SmartDashboard.putNumber("Arm/Arm voltage", sparkMax.getAppliedOutput());
-    SmartDashboard.putNumber("Arm/Arm Current", getCurrent());
+    SmartDashboard.putNumber("Arm/Arm Internal Read", internalEncoder.getPosition());
+    //SmartDashboard.putNumber("Arm/Arm Current", getCurrent());
     //SmartDashboard.putNumber("Arm/Arm Motor Temp", getMotorTemp());
   }
 

@@ -26,18 +26,19 @@ public class ElevatorUppity extends Command {
   // Called repeatedly when this Command is scheduled to run
   @Override
   protected void execute() {
-    Robot.elevator.SetPower(.3);
+    Robot.elevator.SetPower(.2);
   }
 
   // Make this return true when this Command no longer needs to run execute()
   @Override
   protected boolean isFinished() {
-    return false;
+    return Robot.elevator.getTopLimitSwitch();
   }
 
   // Called once after isFinished returns true
   @Override
   protected void end() {
+    System.out.println("finished elevatorup");
     Robot.elevator.SetPosition(Robot.elevator.GetPosition());
     Scheduler.getInstance().add(new LockElevator());
   }
@@ -46,6 +47,7 @@ public class ElevatorUppity extends Command {
   // subsystems is scheduled to run
   @Override
   protected void interrupted() {
+    System.out.println("up interupted");
     end();
   }
 }
