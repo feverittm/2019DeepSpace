@@ -16,7 +16,6 @@ import frc.robot.Robot;
 import frc.robot.RobotMap;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.ctre.phoenix.CANifier;
-import com.ctre.phoenix.CANifier.LEDChannel;
 import com.revrobotics.CANDigitalInput;
 import com.revrobotics.CANEncoder;
 import com.revrobotics.CANPIDController;
@@ -43,8 +42,6 @@ public class Elevator extends Subsystem {
   //This is to switch between balls and hatches for elevator heights.
   //// Balls = true Hatches = false
   public boolean isZeroed;
-
-  public boolean lightOn = false;
 
   public Elevator() {
     master = new CANSparkMax(RobotMap.Ports.masterElevatorMotor, MotorType.kBrushless);
@@ -75,9 +72,6 @@ public class Elevator extends Subsystem {
 
     follower.follow(master, true); // reverse the follower in the follow command
 
-    //master.setOpenLoopRampRate(0.25);
-    //follower.setOpenLoopRampRate(0.25); // Not sure if this is need for the follower motor but just in case
-
     pidController = master.getPIDController();
     pidController.setOutputRange(-0.3, 0.5);
     pidController.setP(RobotMap.Values.elevatorPidP);
@@ -85,7 +79,7 @@ public class Elevator extends Subsystem {
     pidController.setD(RobotMap.Values.elevatorPidD);
     pidController.setFF(RobotMap.Values.elevatorPidF);
     
-    pidController.setReference(0.0/*total - current*/, ControlType.kPosition);
+    pidController.setReference(0.0, ControlType.kPosition);
 
     SetPosition(GetPosition());
     isZeroed = limitSwitchBottom.get();
@@ -94,8 +88,6 @@ public class Elevator extends Subsystem {
     SmartDashboard.putNumber("Elevator/Elevator Pid I", RobotMap.Values.elevatorPidI);
     SmartDashboard.putNumber("Elevator/Elevator Pid D", RobotMap.Values.elevatorPidD);
     SmartDashboard.putNumber("Elevator/Elevator Pid F", RobotMap.Values.elevatorPidF);
-
-    lightOn = false;
   }
 
   public void SetPosition(double height) {
@@ -139,28 +131,6 @@ public class Elevator extends Subsystem {
   public void SetPower(double volts){
     master.set(volts);
     //updateF();
-  }
-
-  public void setLightOn() {
-    lightOn = true;
-    setLightPercent(1);
-    SmartDashboard.putBoolean("Light", lightOn);
-  }
-
-  public void setLightOff() {
-    lightOn = false;
-    setLightPercent(0);
-    SmartDashboard.putBoolean("Light", lightOn);
-  }
-
-  public void setLightPercent(double brightness) {
-    canifier.setLEDOutput(brightness, LEDChannel.LEDChannelA);
-    canifier.setLEDOutput(brightness, LEDChannel.LEDChannelB);
-    canifier.setLEDOutput(brightness, LEDChannel.LEDChannelC);
-  }
-
-  public boolean lightIsOn() {
-    return lightOn;
   }
 
   /**

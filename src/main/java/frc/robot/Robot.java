@@ -9,13 +9,14 @@ package frc.robot;
 
 import com.ctre.phoenix.CANifier;
 
+import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.commands.*;
-//import frc.robot.subsystems.Logger;
+import frc.robot.subsystems.Logger;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.BallManipulator;
@@ -37,18 +38,15 @@ public class Robot extends TimedRobot {
 
   public static final boolean DEBUG = true;
 
-  public static Arm arm;
- // public StaticDeoptimizingNode;               
+  public static Arm arm;             
   public static Elevator elevator;
   public static BallManipulator ballManipulator;
   public static HatchManipulator hatchManipulator;
   public static LiftGear liftGear;
   public static DriveTrain driveTrain;
   //public static CameraServer cameraServer; uncomment if camera exists
-  //public static MotionProfile motionProfile;
-  //public static PathManager pathManager;
-  //public static Logger logger;
-  //public static PowerDistributionPanel pdp;
+  public static Logger logger;
+  public static PowerDistributionPanel pdp;
   public static LineDetector frontLineDetector;
   public static InfraredRangeFinder frontInfraredRangeFinder;
   public static CANifier armCanifier;
@@ -64,14 +62,6 @@ public class Robot extends TimedRobot {
   Command autonomousCommand;
   SendableChooser<AutonomousOptions> chooser = new SendableChooser<>();
 
-  public static int heightIndex;
-  // used by the scoringHeight logic commands to grab the correct height from
-  // the height array in RobotMap.
-
-  /*public Robot() {
-    super(0.02);
-  }*/
-
   /**
    * This function is run when the robot is first started up and should be used
    * for any initialization code.
@@ -84,29 +74,26 @@ public class Robot extends TimedRobot {
     elevatorCanifier = new CANifier(RobotMap.Ports.elevatorCanifier);
     arm = new Arm();
     ballManipulator = new BallManipulator();
-    //pdp = new PowerDistributionPanel();
+    pdp = new PowerDistributionPanel();
     hatchManipulator = new HatchManipulator();
     elevator = new Elevator();
-
     liftGear = new LiftGear();
     driveTrain = new DriveTrain();
     limeLight = new LimeLight();
-    //frontCameraMount = new CameraMount(0, 120, 10, 170, 2, 40, RobotMap.Ports.frontLightRing, RobotMap.Ports.frontPanServo, RobotMap.Ports.frontTiltServo, ButtonBox.ScoringDirectionStates.Front);
-    //backCameraMount = new CameraMount(0, 120, 10, 170, 2, 40, RobotMap.Ports.backLightRing, RobotMap.Ports.backPanServo, RobotMap.Ports.backTiltServo,  ButtonBox.ScoringDirectionStates.Back);
     frontLineDetector = new LineDetector(RobotMap.Ports.lineSensorFrontLeft, 
       RobotMap.Ports.lineSensorFrontCenter, 
       RobotMap.Ports.lineSensorFrontRight);
     frontInfraredRangeFinder = new InfraredRangeFinder(RobotMap.Ports.frontInfraredSensor);
 
     // Create the logging instance so we can use it for tuning the PID subsystems
-    //logger = Logger.getInstance();
+    logger = Logger.getInstance();
 
     // Instanciate the Power Distribution Panel so that we can get the currents
     // however, we need to clear the faults so that the LEDs on the PDP go green.
     // I can never (and I have tried) find the source of the warnings that cause
     // the LED's to be Amber.
-    //pdp = new PowerDistributionPanel();
-    //pdp.clearStickyFaults();
+    pdp = new PowerDistributionPanel();
+    pdp.clearStickyFaults();
 
     chooser.setDefaultOption("Do Nothing", AutonomousOptions.DoNothing);
     chooser.addOption("Left Cargo Ship", AutonomousOptions.LeftCargoShip);
@@ -137,8 +124,6 @@ public class Robot extends TimedRobot {
 
     deltaTime = (System.currentTimeMillis() - lastTime) / 1000;
     lastTime = System.currentTimeMillis();
-    //oi.reconfigureButtons();
-
 
     boolean safe = elevator.GetPosition() > RobotMap.Values.armSwitchHeight + 2000;
     SmartDashboard.putBoolean("wtf/Safe?", safe);
