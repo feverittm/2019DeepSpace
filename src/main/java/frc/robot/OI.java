@@ -38,10 +38,6 @@ public class OI {
 
   public int secretModeCounterA = 0, secretModeCounterB = 0;
 
-  public CurrentConfig currentConfig;
-
-  private boolean CurrentConfig = false;
-
   public OI() {
     // driver controls... game sticks control the motion of the robot
     // left stick Y-axis is drive power
@@ -96,8 +92,6 @@ public class OI {
 
     toggleHatch = new JoystickButton(gamepad3, RobotMap.Buttons.buttonB);
     toggleHatch.whenPressed(new ToggleHatch());
-
-    manualConfig();
 
     // #endregion
   }
@@ -168,59 +162,6 @@ public class OI {
    */
   public double condition_gamepad_axis(double dead, double val, double min, double max) {
     return clamp(min, max, deadBand(val, dead));
-  }
-
-  //#endregion
-
-  public void manualConfig() {
-    SmartDashboard.putString("Controller Config", "Manual");
-
-    autoDriveToTarget.whenPressed(new ToggleLight());
-    toggleHatch.whenPressed(new ToggleHatch());
-    elevatorGoUp.whileHeld(new ElevatorUppity());
-    elevatorGoDown.whileHeld(new ElevatorDownity());
-
-    currentConfig = CurrentConfig.Manual;
-  }
-
-  public void cargoFrontConfig() {
-
->>>>>>> master
-    SmartDashboard.putString("Controller Config", "Cargo Front");
-
-    POVDownButon.whileHeld(new ElevatorDownity());
-    POVUpButton.whileHeld(new ElevatorUppity());
-    POVRightButton.whileHeld(new MoveArm(-0.5));
-    POVLeftButton.whileHeld(new MoveArm(0.5));
-
-  }
-
-  public void setpointConfig() {
-    // High Rocket
-    POVUpButton.whenPressed(new ElevatorArmSetpoint("FrontHatchRocketHigh"));
-
-    // Mid Rocket / Cargoship Cargo Drop
-    POVRightButton.whenPressed(new ElevatorArmSetpoint("FrontHatchRocketMiddle"));
-
-    // Bottom Rocket / Low Hatch
-    POVDownButon.whenPressed(new ElevatorArmSetpoint("FrontHatchRocketLow"));
-
-    // Map left to flip...
-    POVLeftButton.whenPressed(new FlipArmChain());
-  }
-
-  public void reconfigureButtons() {
-    if (CurrentConfig == RobotMap.ElevatorMode) {
-      return;
-    }
-
-    if (RobotMap.ElevatorMode == true) {
-      setpointConfig();
-    } else {
-      manualConfig();
-    }
-
-    CurrentConfig = RobotMap.ElevatorMode;
   }
 
   // KEEP THESE COMMENTS
