@@ -145,7 +145,7 @@ public class DriveTrain extends Subsystem {
     leftTalon.set(ControlMode.PercentOutput, 0);
     rightTalon.set(ControlMode.PercentOutput, 0);
   }
-  
+
   public void setRampArcadeVolts(double front, double turn) {
     double newY = front;
 
@@ -236,7 +236,7 @@ public class DriveTrain extends Subsystem {
 			return 0.0;
 		}
 	}
-	  
+
   /**
    * Gets PID constants from the SmartDashboard and then uses setPIDValues(double,
    * double, double)

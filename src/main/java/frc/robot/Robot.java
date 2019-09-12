@@ -88,7 +88,7 @@ public class Robot extends TimedRobot {
     //pdp = new PowerDistributionPanel();
     hatchManipulator = new HatchManipulator();
     elevator = new Elevator();
-    
+
     liftGear = new LiftGear();
     driveTrain = new DriveTrain();
     limeLight = new LimeLight();
@@ -123,7 +123,7 @@ public class Robot extends TimedRobot {
     oi = new OI();
 
     //motionProfile = MotionProfile.getInstance();
-    
+
     //pathManager = PathManager.getInstance();
   }
 
@@ -168,7 +168,7 @@ public class Robot extends TimedRobot {
 
     arm.SetIdleBrakeMode();
     Scheduler.getInstance().add(new LockArm());
-    
+
 
     // NOTE: There must be a delay of AT LEAST 20ms to give
     // the camera subsystem time to ingest some frames. The assumption
