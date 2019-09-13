@@ -26,7 +26,6 @@ public class SetElevatorSmartMotion extends Command {
   // Called just before this Command runs the first time
   @Override
   protected void initialize() {
-    Robot.elevator.updatePID();
     SmartDashboard.putNumber("Elevator Setpoint", setpoint);
   }
 

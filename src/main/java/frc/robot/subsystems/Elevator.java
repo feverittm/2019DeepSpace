@@ -8,7 +8,6 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.ControlType;
 import frc.robot.commands.LockElevator;
 import frc.robot.data.ElevatorData;
 import edu.wpi.first.wpilibj.PIDController;
@@ -20,7 +19,6 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.ctre.phoenix.CANifier;
 import com.revrobotics.CANDigitalInput;
 import com.revrobotics.CANEncoder;
-import com.revrobotics.CANPIDController;
 import com.revrobotics.CANDigitalInput.LimitSwitchPolarity;
 import com.revrobotics.CANDigitalInput.LimitSwitch;
 import com.revrobotics.CANSparkMax.IdleMode;
