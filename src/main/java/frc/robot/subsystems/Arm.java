@@ -47,6 +47,9 @@ public class Arm extends PIDSubsystem {
     double conversionFactor = RobotMap.Values.internalFlipTickCount / (RobotMap.Values.armBackParallel - RobotMap.Values.armFrontParallel);
     internalEncoder.setPositionConversionFactor(conversionFactor);     
     dataBus = Robot.armCanifier;
+
+    // initialize arm encoder assuming that it is at zero position.  
+    //prevRead = getRawEncoder();
   }
 
   public void setPower(double speed) {
@@ -147,15 +150,11 @@ public class Arm extends PIDSubsystem {
     SmartDashboard.putNumber("Arm/Arm Absolute Raw", getRawEncoder());
     SmartDashboard.putNumber("Arm/Absolute Parsed", readEncoder());
     SmartDashboard.putNumber("Arm Angle", ((readEncoder() - RobotMap.Values.armFrontParallel) * RobotMap.Values.ticksToRadiansArm));
-    //SmartDashboard.putBoolean("Arm/Disc Brake state: ", discBrake.get());
-    //SmartDashboard.putBoolean("Arm/Arm forward limit switch", getForwardLimitSwitch());
 
     SmartDashboard.putNumber("Arm/Arm F", pidController.getF());
-    //SmartDashboard.putBoolean("Arm/Arm Front Limit Switch", frontLimitSwitch.get());
-    //SmartDashboard.putBoolean("Arm/Arm Back Limit Switch", backLimitSwitch.get());
     SmartDashboard.putNumber("Arm/Arm voltage", sparkMax.getAppliedOutput());
     SmartDashboard.putNumber("Arm/Arm Internal Read", internalEncoder.getPosition());
-    //SmartDashboard.putNumber("Arm/Arm Current", getCurrent());
+    SmartDashboard.putNumber("Arm/Arm Current", getCurrent());
     //SmartDashboard.putNumber("Arm/Arm Motor Temp", getMotorTemp());
   }
 

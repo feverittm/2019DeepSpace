@@ -6,11 +6,13 @@
 /*----------------------------------------------------------------------------*/
 
 package frc.robot.subsystems;
+
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.ControlType;
 import frc.robot.commands.LockElevator;
 import frc.robot.data.ElevatorData;
-import edu.wpi.first.wpilibj.command.Subsystem;
+import edu.wpi.first.wpilibj.PIDController;
+import edu.wpi.first.wpilibj.command.PIDSubsystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 import frc.robot.RobotMap;
@@ -25,14 +27,13 @@ import com.revrobotics.CANSparkMax.IdleMode;
 /**
  * Add your docs here.
  */
-public class Elevator extends Subsystem {
+public class Elevator extends PIDSubsystem {
   private CANSparkMax master, follower;
-
   private CANEncoder encoder;
+  private PIDController pidController;
 
   private double rampAccel = 0.5; // Use this value to see if the elevator is actually being deccelerated
 
-  private CANPIDController pidController;
   private CANDigitalInput limitSwitchTop;
   private CANDigitalInput limitSwitchBottom;
   private CANifier canifier;
@@ -43,7 +44,17 @@ public class Elevator extends Subsystem {
   //// Balls = true Hatches = false
   public boolean isZeroed;
 
+  private double kP_simulation = RobotMap.Values.elevatorPidP;
+  private double kI_simulation = RobotMap.Values.elevatorPidI;
+  private double kD_simulation = RobotMap.Values.elevatorPidD;
+  
   public Elevator() {
+    super("Elevator", 0, 0, 0);
+    if (Robot.isSimulation()) { // Check for simulation and update PID values
+      pidController.setPID(kP_simulation, kI_simulation, kD_simulation);
+    }
+    pidController.setAbsoluteTolerance(0.005);
+
     master = new CANSparkMax(RobotMap.Ports.masterElevatorMotor, MotorType.kBrushless);
     follower = new CANSparkMax(RobotMap.Ports.followerElevatorMotor, MotorType.kBrushless);
     
@@ -62,8 +73,6 @@ public class Elevator extends Subsystem {
     limitSwitchBottom= new CANDigitalInput(master, LimitSwitch.kForward, LimitSwitchPolarity.kNormallyOpen);
     limitSwitchBottom.enableLimitSwitch(true);
 
-    //master.getForwardLimitSwitch(LimitSwitchPolarity.kNormallyOpen);
-
     master.setIdleMode(IdleMode.kBrake);
     follower.setIdleMode(IdleMode.kBrake);
 
@@ -72,17 +81,12 @@ public class Elevator extends Subsystem {
 
     follower.follow(master, true); // reverse the follower in the follow command
 
-    pidController = master.getPIDController();
     pidController.setOutputRange(-0.3, 0.5);
-    pidController.setP(RobotMap.Values.elevatorPidP);
-    pidController.setI(RobotMap.Values.elevatorPidI);
-    pidController.setD(RobotMap.Values.elevatorPidD);
-    pidController.setFF(RobotMap.Values.elevatorPidF);
-    
-    pidController.setReference(0.0, ControlType.kPosition);
 
     SetPosition(GetPosition());
     isZeroed = limitSwitchBottom.get();
+
+    resetElevatorEncoder();
 
     SmartDashboard.putNumber("Elevator/Elevator Pid P", RobotMap.Values.elevatorPidP);
     SmartDashboard.putNumber("Elevator/Elevator Pid I", RobotMap.Values.elevatorPidI);
@@ -90,9 +94,17 @@ public class Elevator extends Subsystem {
     SmartDashboard.putNumber("Elevator/Elevator Pid F", RobotMap.Values.elevatorPidF);
   }
 
+  public double returnPIDInput() {
+    return(GetPosition());
+  }
+
+  public void usePIDOutput(double value) {
+    SetPower(value);
+  }
+
   public void SetPosition(double height) {
     //System.out.println("Set elevator to go to height " + height); 
-    pidController.setReference(height - GetPosition(), ControlType.kPosition);
+    pidController.setSetpoint(height);
     updateF();
   }
 
@@ -130,7 +142,6 @@ public class Elevator extends Subsystem {
 
   public void SetPower(double volts){
     master.set(volts);
-    //updateF();
   }
 
   /**
@@ -181,15 +192,22 @@ public class Elevator extends Subsystem {
   }
 
   public void updateF() {
+    // the midpoint of the elevator pulls the constant force spring
+    // and causes a larger downward force.
     if (GetPosition() > RobotMap.ElevatorHeights.elevatorMiddleHeight) {
-      pidController.setFF(RobotMap.Values.elevatorPidFMax);
+      pidController.setF(RobotMap.Values.elevatorPidFMax);
     } else {
-      pidController.setFF(RobotMap.Values.elevatorPidF);
+      pidController.setF(RobotMap.Values.elevatorPidF);
     }
   }
 
+  /**
+   * Reset the poistion of the elevator encoder.  If the limit switches
+   * are available then trigger reset using them.
+   * Otherwise assume that the initial position of the elevator is at
+   * the bottom and allow a reset at that point.
+   */
   public void ZeroElevator(){
-
     if (limitSwitchBottom.get()){
 
       resetElevatorEncoder();
@@ -217,19 +235,13 @@ public class Elevator extends Subsystem {
     return e;
   }
 
-  public void updatePID() {
-    //pidController.setP(SmartDashboard.getNumber("Elevator Pid P", RobotMap.Values.elevatorPidP));
-    //pidController.setI(SmartDashboard.getNumber("Elevator Pid I", RobotMap.Values.elevatorPidI));
-    //pidController.setD(SmartDashboard.getNumber("Elevator Pid D", RobotMap.Values.elevatorPidD));
-    //pidController.setFF(SmartDashboard.getNumber("Elevator Pid F", RobotMap.Values.elevatorPidF));
-  }
-
   public void updateSmartDashboard() {
     //SmartDashboard.putNumber("Elevator/Elevator volts", master.get());
     SmartDashboard.putNumber("Elevator/Elevator Height: ", GetPosition());
     SmartDashboard.putBoolean("Elevator/Bottom Limit Switch", limitSwitchBottom.get());
     SmartDashboard.putBoolean("Elevator/Top Limit Switch", limitSwitchTop.get());
-    SmartDashboard.putNumber("Elevator Pid F", pidController.getFF());
+    SmartDashboard.putNumber("Elevator/Elevator Pid F", pidController.getF());
+    SmartDashboard.putNumber("Elevator/Setpoint", pidController.getSetpoint());
     //SmartDashboard.putNumber("Elevator/Elevator", master.getOutputCurrent());
     //SmartDashboard.putNumber("Elevator/Elevator Internal Encoder", getInternalEncoderPos());
     //SmartDashboard.putNumber("Elevator/Elevator Master Temp", getMasterTemp());
