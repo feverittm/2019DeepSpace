@@ -27,18 +27,14 @@ public class SetArmPosition extends Command {
   // Called just before this Command runs the first time
   @Override
   protected void initialize() {
-
-    Robot.arm.miniBoi.reset();
-
     System.out.println("Initted armToPosition");
-    //Robot.arm.updatePID();
+    Robot.arm.setSetpoint(setpoint);
+    Robot.arm.enable();
   }
 
   // Called repeatedly when this Command is scheduled to run
   @Override
   protected void execute() {
-    Robot.arm.SetPostion(setpoint);
-    //Robot.arm.UpdateF();
   }
 
   // Make this return true when this Command no longer needs to run execute()
@@ -50,7 +46,6 @@ public class SetArmPosition extends Command {
   // Called once after isFinished returns true
   @Override
   protected void end() {
-    Robot.arm.engageBrake();
     Robot.arm.setPower(0);
     Scheduler.getInstance().add(new LockArm());
   }

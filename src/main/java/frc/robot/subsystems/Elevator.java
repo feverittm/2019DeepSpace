@@ -194,33 +194,15 @@ public class Elevator extends Subsystem {
 
       resetElevatorEncoder();
       isZeroed = true;
-      Robot.arm.setArmFrontLimit(RobotMap.Values.armFrontLower);
+      //Robot.arm.setArmFrontLimit(RobotMap.Values.armFrontLower);
     } else {
-      Robot.arm.setArmFrontLimit(RobotMap.Values.armFrontParallel);
+      //Robot.arm.setArmFrontLimit(RobotMap.Values.armFrontParallel);
     }
   }
 
-  /*public void incrementIndex() {
-    index++;
-    if (index > heightList.length - 1) {
-      index = heightList.length - 1;
-    }
-  }
-
-  public void decrementIndex() {
-    index--;
-    if(index < 0) {
-      index = 0;
-    }
-  }
-  public double getHeightFromArray() {
-    return heightList[index];
-  }*/
   @Override
   public void initDefaultCommand() {
     setDefaultCommand(new LockElevator());
-    // Set the default command for a subsystem here.
-    // setDefaultCommand(new MySpecialCommand());
   }
 
   public ElevatorData getElevatorData() {

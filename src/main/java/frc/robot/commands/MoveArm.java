@@ -16,12 +16,10 @@ import frc.robot.RobotMap;
 /**
  *
  */
-public class MoveArm extends Command {
+public class MoveArm extends Command{
 
   double speed;
   double moveSpeed = 0;
-  //public double value;
-  //public double position;
 
   public MoveArm(double speed) {
     requires(Robot.arm);
@@ -31,7 +29,6 @@ public class MoveArm extends Command {
 
   protected void initialize() {
     System.out.println("initted moveArm");
-    Robot.arm.releaseBrake();
     //position = Robot.arm.readEncoder();
   }
 

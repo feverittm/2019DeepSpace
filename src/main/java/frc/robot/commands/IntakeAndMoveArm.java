@@ -23,7 +23,6 @@ public class IntakeAndMoveArm extends Command {
   // Called just before this Command runs the first time
   @Override
   protected void initialize() {
-    Robot.arm.setArmFrontLimit(RobotMap.Values.armFrontParallel);
     Scheduler.getInstance().add(new SetArmPosition(RobotMap.Values.armFrontParallel, 10));
   }
 
@@ -42,7 +41,6 @@ public class IntakeAndMoveArm extends Command {
   // Called once after isFinished returns true
   @Override
   protected void end() {
-    Robot.arm.setArmFrontLimit(RobotMap.Values.armFrontParallel);
     Robot.ballManipulator.stopMotor();
   }
 

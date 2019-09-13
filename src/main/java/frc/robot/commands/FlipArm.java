@@ -42,7 +42,7 @@ public class FlipArm extends Command {
   // Called repeatedly when this Command is scheduled to run
   @Override
   protected void execute() {
-    Robot.arm.SetPostion(setpoint);
+    Robot.arm.setSetpoint(setpoint);
       //System.out.println("FlipArm error is " + Math.abs(setpoint - Robot.arm.readEncoder()));
   }
 

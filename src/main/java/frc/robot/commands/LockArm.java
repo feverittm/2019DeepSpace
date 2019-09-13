@@ -21,10 +21,6 @@ public class LockArm extends Command {
     }
     
     protected void initialize() {
-
-      Robot.arm.miniBoi.reset();
-
-      Robot.arm.engageBrake();
       //Robot.arm.resetPID();
       position = position == Double.MAX_VALUE ? Robot.arm.readEncoder() : position;
       //System.out.println("---------------------\ninitted lockArm at " + position);
@@ -34,7 +30,7 @@ public class LockArm extends Command {
     }
 
     protected void execute() {
-      Robot.arm.SetPostion(position);
+      Robot.arm.setSetpoint(position);
       SmartDashboard.putNumber("Arm/Arm position", position);
       //System.out.println("Locking Arm at position " + position + "\nArm at " + Robot.arm.readEncoder());
     }
@@ -44,8 +40,7 @@ public class LockArm extends Command {
     }
 
     protected void end() {
-      Robot.arm.SetPostion(Robot.arm.readEncoder());
-      Robot.arm.releaseBrake();
+      Robot.arm.setSetpoint(Robot.arm.readEncoder());
     }
 
     protected void interrupted() {
