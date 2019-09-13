@@ -77,7 +77,6 @@ public class PDriveToDistance extends Command {
 
   public double pFactor() {
     // Calculate full PID
-    // pfactor = (P × error) + (I × ∑error) + (D × δerrorδt)
     double error = this.piderror();
     // Integral is increased by the error*time (which is .02 seconds using normal
     // IterativeRobot)
