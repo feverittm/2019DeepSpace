@@ -46,7 +46,6 @@ public class SetArmPosition extends Command {
   // Called once after isFinished returns true
   @Override
   protected void end() {
-    Robot.arm.setPower(0);
     Scheduler.getInstance().add(new LockArm());
   }
 

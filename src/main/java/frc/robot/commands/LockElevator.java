@@ -11,30 +11,27 @@ import frc.robot.Robot;
 import edu.wpi.first.wpilibj.command.Command;
 
 public class LockElevator extends Command {
-  private double position;
+  private double m_position;
   public LockElevator() {
     requires(Robot.elevator);
-    // Use requires() here to declare subsystem dependencies
-    // eg. requires(chassis);
   }
 
   // Called just before this Command runs the first time
   @Override
   protected void initialize() {
-    position = Robot.elevator.GetPosition();
+    m_position = Robot.elevator.GetPosition();
   }
 
   // Called repeatedly when this Command is scheduled to run
   @Override
   protected void execute() {
-    System.out.println("ran lockelevator");
-    Robot.elevator.SetPosition(position);
+    Robot.elevator.SetPosition(m_position);
   }
 
   // Make this return true when this Command no longer needs to run execute()
   @Override
   protected boolean isFinished() {
-    return (Robot.elevator.GetBottomLimitSwitch());
+    return Robot.elevator.atSetpoint();
   }
 
   // Called once after isFinished returns true

@@ -12,7 +12,7 @@ package frc.robot.data;
  */
 public class ArmData {
 
-  public double output, current, ticks, velocity;
+  public double output, current, ticks, velocity, angle;
   public boolean front, back;
 
 }

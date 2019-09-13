@@ -2,14 +2,13 @@ package frc.robot.commands;
 
 import frc.robot.Robot;
 import edu.wpi.first.wpilibj.command.Command;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  *
  */
 public class LockArm extends Command {
 
-	public double position = Double.MAX_VALUE;
+	public double m_position = Double.MAX_VALUE;
 	
     public LockArm() {
     	requires(Robot.arm);
@@ -17,21 +16,21 @@ public class LockArm extends Command {
 
     public LockArm(double position) {
       requires(Robot.arm);
-      this.position = position;
+      this.m_position = position;
     }
     
     protected void initialize() {
       //Robot.arm.resetPID();
-      position = position == Double.MAX_VALUE ? Robot.arm.readEncoder() : position;
+      m_position = m_position == Double.MAX_VALUE ? Robot.arm.readEncoder() : m_position;
       //System.out.println("---------------------\ninitted lockArm at " + position);
       //System.out.println("read arm encoder as " + Robot.arm.readEncoder());
       //System.out.println("raw arm encoder is " + Robot.arm.getRawEncoder());
       //Robot.arm.updatePID();
+      Robot.arm.setSetpoint(m_position);
     }
 
     protected void execute() {
-      Robot.arm.setSetpoint(position);
-      SmartDashboard.putNumber("Arm/Arm position", position);
+      //SmartDashboard.putNumber("Arm/Arm position", m_position);
       //System.out.println("Locking Arm at position " + position + "\nArm at " + Robot.arm.readEncoder());
     }
 

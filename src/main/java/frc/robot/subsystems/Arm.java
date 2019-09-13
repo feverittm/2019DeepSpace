@@ -38,6 +38,7 @@ public class Arm extends PIDSubsystem {
     super("Arm", 0, 0, 0);
     setAbsoluteTolerance(0.05);
     pidController.setContinuous(false);
+    pidController.disable();
 
     sparkMax = new CANSparkMax(RobotMap.Ports.armSpark, MotorType.kBrushless);
     sparkMax.restoreFactoryDefaults();
@@ -53,6 +54,7 @@ public class Arm extends PIDSubsystem {
   }
 
   public void setPower(double speed) {
+    pidController.disable();
     sparkMax.set(speed);
   }
 
@@ -61,7 +63,7 @@ public class Arm extends PIDSubsystem {
   }
 
   protected void usePIDOutput(double output) {
-    setPower(output);
+    sparkMax.set(output);
   }
 
   // This function only works if the inital read of the arm is horizontal
@@ -78,12 +80,6 @@ public class Arm extends PIDSubsystem {
 
   public double readEncoder() {
     double newVal = getRawEncoder();
-    
-    /*if (test) {
-      newVal = testInput; // Read test input
-    } else {
-      newVal = getRawEncoder(); // Read encoder data
-    }*/
 
     if (prevRead == -1) { 
       prevRead = newVal;
@@ -117,6 +113,7 @@ public class Arm extends PIDSubsystem {
 
   public void stop() {
     // need to disable the PID and stop the motor
+    pidController.disable();
     sparkMax.set(0.0);
   }
 
@@ -135,15 +132,9 @@ public class Arm extends PIDSubsystem {
     a.current = sparkMax.getOutputCurrent();
     a.ticks = readEncoder();
     a.velocity = 0;
+    a.angle = readEncoder();
 
     return a;
-  }
-
-  public void updatePID() {
-    //pidController.setP(SmartDashboard.getNumber("Arm Pid P", RobotMap.Values.armPidP));
-    //pidController.setI(SmartDashboard.getNumber("Arm Pid I", RobotMap.Values.armPidI));
-    //pidController.setD(SmartDashboard.getNumber("Arm Pid D", RobotMap.Values.armPidD));
-    //fConstant = SmartDashboard.getNumber("Arm Pid F", RobotMap.Values.armMaxPidF);
   }
 
   public void updateSmartDashboard() {
@@ -155,9 +146,7 @@ public class Arm extends PIDSubsystem {
     SmartDashboard.putNumber("Arm/Arm voltage", sparkMax.getAppliedOutput());
     SmartDashboard.putNumber("Arm/Arm Internal Read", internalEncoder.getPosition());
     SmartDashboard.putNumber("Arm/Arm Current", getCurrent());
-    //SmartDashboard.putNumber("Arm/Arm Motor Temp", getMotorTemp());
   }
-
 
 //Started copying over Hunter's PID code from SetArmPosition cuz PID ain't
 //supposed to go in commands.

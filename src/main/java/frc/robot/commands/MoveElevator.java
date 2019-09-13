@@ -16,22 +16,22 @@ import frc.robot.RobotMap;
  *
  */
 public class MoveElevator extends Command {
-	public double value;
+	public double m_value;
 	
 	public MoveElevator(double _value) {
     	requires(Robot.elevator);
-    	this.value = _value;
+    	this.m_value = _value;
     }
     protected void initialize() {
     }
     protected void execute() {
-    	if (Robot.elevator.GetPosition() >= RobotMap.Values.elevatorTopHeight && value > 0) {
+    	if (Robot.elevator.GetPosition() >= RobotMap.Values.elevatorTopHeight && m_value > 0) {
             Scheduler.getInstance().add(new LockElevator());
         }
-        else if (Robot.elevator.GetPosition() <= 0 && value < 0) {
+        else if (Robot.elevator.GetPosition() <= 0 && m_value < 0) {
             Scheduler.getInstance().add(new LockElevator());
     	} else {
-    		Robot.elevator.SetPower(value);
+    		Robot.elevator.SetPower(m_value);
     	}
     }
     protected boolean isFinished() {

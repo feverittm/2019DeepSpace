@@ -8,7 +8,6 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
-import frc.robot.commands.LockElevator;
 import frc.robot.data.ElevatorData;
 import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.command.PIDSubsystem;
@@ -142,6 +141,10 @@ public class Elevator extends PIDSubsystem {
     master.set(volts);
   }
 
+  public boolean atSetpoint() {
+    return pidController.onTarget();
+  }
+
   /**
    * This function processes the power given and limits it based on position and current
    * speed to determine an appropriate speed to go at for a smooth, nice elevator.
@@ -218,7 +221,7 @@ public class Elevator extends PIDSubsystem {
 
   @Override
   public void initDefaultCommand() {
-    setDefaultCommand(new LockElevator());
+    //setDefaultCommand(new LockElevator());
   }
 
   public ElevatorData getElevatorData() {
@@ -229,6 +232,7 @@ public class Elevator extends PIDSubsystem {
     e.velocity = canifier.getQuadratureVelocity();
     e.bottom = GetBottomLimitSwitch();
     e.top = limitSwitchTop.get();
+    e.position = GetPosition();
 
     return e;
   }
