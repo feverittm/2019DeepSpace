@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 import frc.robot.RobotMap;
+import frc.robot.misc.Utils;
 
 /**
  *
@@ -37,6 +38,7 @@ public class PDriveToAngle extends Command {
     double error = this.piderror();
     // Integral is increased by the error*time (which is .02 seconds using normal
     // IterativeRobot)
+
     this.integral += (error * .02);
     // Derivative is change in error over time
     double derivative = (error - this.previousError) / .02;
@@ -48,7 +50,7 @@ public class PDriveToAngle extends Command {
   protected void execute() {
     // calculate yaw correction
     double yawcorrect = this.yawCorrect();
-    Robot.driveTrain.setVolts(Robot.oi.clamp(-1, 1, yawcorrect), Robot.oi.clamp(-1, 1, -yawcorrect));
+    Robot.driveTrain.setVolts(Utils.clamp(-1.0, 1.0, yawcorrect), Utils.clamp(-1, 1, -yawcorrect));
     // Debug information to be placed on the smart dashboard.
     SmartDashboard.putNumber("PDTA/Angle Error", piderror());
     SmartDashboard.putNumber("PDTA/Theta Angle Correction", yawcorrect);

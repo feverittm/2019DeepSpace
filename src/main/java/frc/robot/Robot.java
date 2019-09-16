@@ -80,10 +80,6 @@ public class Robot extends TimedRobot {
     liftGear = new LiftGear();
     driveTrain = new DriveTrain();
     limeLight = new LimeLight();
-    frontLineDetector = new LineDetector(RobotMap.Ports.lineSensorFrontLeft, 
-      RobotMap.Ports.lineSensorFrontCenter, 
-      RobotMap.Ports.lineSensorFrontRight);
-    frontInfraredRangeFinder = new InfraredRangeFinder(RobotMap.Ports.frontInfraredSensor);
 
     // Create the logging instance so we can use it for tuning the PID subsystems
     logger = Logger.getInstance();
@@ -107,10 +103,6 @@ public class Robot extends TimedRobot {
 
     // Make these last so to chase away the dreaded null subsystem errors!
     oi = new OI();
-
-    //motionProfile = MotionProfile.getInstance();
-
-    //pathManager = PathManager.getInstance();
   }
 
   @Override
@@ -127,16 +119,10 @@ public class Robot extends TimedRobot {
 
     boolean safe = elevator.GetPosition() > RobotMap.Values.armSwitchHeight + 2000;
     SmartDashboard.putBoolean("wtf/Safe?", safe);
-
-    if (DEBUG)
-      updateSmartDashboard();
-    else
-      updateSmartDashboardRequired();
   }
 
   @Override
   public void disabledInit() {
-    //cameraControlStateMachine.identifyTargets();
     driveTrain.setCoast(); // So the drivers don't want to kill us ;)
     arm.SetIdleCoastMode();
   }
@@ -144,20 +130,12 @@ public class Robot extends TimedRobot {
   @Override
   public void disabledPeriodic() {
     Scheduler.getInstance().run();
-    //elevator.ZeroElevator();
   }
 
   @Override
   public void autonomousInit() {
-
     arm.SetIdleBrakeMode();
     Scheduler.getInstance().add(new LockArm());
-
-
-    // NOTE: There must be a delay of AT LEAST 20ms to give
-    // the camera subsystem time to ingest some frames. The assumption
-    // is that autolock vision will be sandwiched between other commands,
-    // and so there should be no problem.
 
     // Get the autonomous chooser option
     AutonomousOptions autonomousOption = chooser.getSelected();
@@ -222,7 +200,8 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {
 
-    elevator.resetElevatorEncoder();
+    //elevator.resetElevatorEncoder();
+
     // Init hatch target finding vision camera
     //cameraControlStateMachine.identifyTargets();
 
@@ -250,7 +229,7 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     Scheduler.getInstance().run();
-    elevator.ZeroElevator();
+    //elevator.ZeroElevator();
   }
 
   @Override

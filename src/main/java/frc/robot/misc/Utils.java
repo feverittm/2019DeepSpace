@@ -11,19 +11,54 @@ package frc.robot.misc;
  * Add your docs here.
  */
 public class Utils {
-    public Utils(){
+    public Utils() {
 
     }
-    
-    public static double clamp(double min, double max, double value){
-        if(value > max){
-            return max;
-        } if (value < min){
-            return min;
-        }else {
+
+    /**
+     * Make the gamepad axis less sensitive to changes near their null/zero point.
+     * 
+     * @param value raw value from the gamepad axis
+     * @param dead  value for the deadband size
+     * @return
+     */
+    public static double deadBand(double value, double dead) {
+        if (Math.abs(value) < dead) {
+            return 0;
+        } else {
             return value;
         }
-
     }
-    
+
+    /**
+     * Clamp/Limit the value to only be within two limits
+     * 
+     * @param min lower limit
+     * @param max upper limit
+     * @param val value to check
+     * @return
+     */
+    public static double clamp(double min, double max, double val) {
+        if (min > val) {
+            return min;
+        } else if (max < val) {
+            return max;
+        } else {
+            return val;
+        }
+    }
+
+    /**
+     * Combine both a joystick limit and a clamp within standard limits.
+     * 
+     * @param dead deadband limit, no output within this limit. Normally 0.05
+     * @param val  raw value from axis
+     * @param min  lower limit for axis. Normally -1
+     * @param max  upper limit on axis. Normally +1
+     * @return conditioned value from axis (limited -1 to +1, with a )
+     */
+    public static double condition_gamepad_axis(double dead, double val, double min, double max) {
+        return clamp(min, max, deadBand(val, dead));
+    }
+
 }
