@@ -8,7 +8,6 @@
 package frc.robot;
 
 import com.ctre.phoenix.CANifier;
-
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Command;
@@ -16,6 +15,8 @@ import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.commands.*;
+import frc.robot.data.ElevatorData;
+import frc.robot.data.ArmData;
 import frc.robot.subsystems.Logger;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
@@ -44,6 +45,8 @@ public class Robot extends TimedRobot {
   public static DriveTrain driveTrain;
   //public static CameraServer cameraServer; uncomment if camera exists
   public static Logger logger;
+  public static ArmData armData;
+  public static ElevatorData elevatorData;
   public static PowerDistributionPanel pdp;
   public static CANifier armCanifier;
   public static CANifier elevatorCanifier;
@@ -77,6 +80,8 @@ public class Robot extends TimedRobot {
 
     // Create the logging instance so we can use it for tuning the PID subsystems
     logger = Logger.getInstance();
+    armData = ArmData.getInstance();
+    elevatorData = ElevatorData.getInstance();
 
     // Instanciate the Power Distribution Panel so that we can get the currents
     // however, we need to clear the faults so that the LEDs on the PDP go green.
