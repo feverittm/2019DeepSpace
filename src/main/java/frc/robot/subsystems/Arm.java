@@ -7,7 +7,6 @@ import com.revrobotics.CANEncoder;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
-import frc.robot.Robot;
 import frc.robot.data.ArmData;
 import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.command.PIDSubsystem;
@@ -22,7 +21,7 @@ public class Arm extends PIDSubsystem {
   public double setpoint = 0;
   private CANSparkMax sparkMax;
   private CANEncoder internalEncoder;
-  private CANifier dataBus;
+  private CANifier armCanifier;
   private PIDController pidController;
 
   // Read Encoder Vars
@@ -47,7 +46,8 @@ public class Arm extends PIDSubsystem {
     internalEncoder = sparkMax.getEncoder();
     double conversionFactor = RobotMap.Values.internalFlipTickCount / (RobotMap.Values.armBackParallel - RobotMap.Values.armFrontParallel);
     internalEncoder.setPositionConversionFactor(conversionFactor);     
-    dataBus = Robot.armCanifier;
+
+    armCanifier = new CANifier(RobotMap.Ports.armCanifier);
 
     // initialize arm encoder assuming that it is at zero position.  
     //prevRead = getRawEncoder();
@@ -98,7 +98,7 @@ public class Arm extends PIDSubsystem {
 
   public double getRawEncoder() {
     double[] a = new double[2];
-    dataBus.getPWMInput(PWMChannel.PWMChannel0, a);
+    armCanifier.getPWMInput(PWMChannel.PWMChannel0, a);
     SmartDashboard.putNumber("Duty Cycle", a[1]);
     return a[0];
   }
@@ -126,15 +126,12 @@ public class Arm extends PIDSubsystem {
     //setDefaultCommand(new LockArm());
   }
 
-  public ArmData getArmData() {
-    ArmData a = new ArmData();
+  public void getArmData(ArmData a) {
     a.output = sparkMax.getAppliedOutput();
     a.current = sparkMax.getOutputCurrent();
     a.ticks = readEncoder();
     a.velocity = 0;
     a.angle = readEncoder();
-
-    return a;
   }
 
   public void updateSmartDashboard() {

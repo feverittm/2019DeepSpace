@@ -6,7 +6,6 @@
 /*----------------------------------------------------------------------------*/
 
 package frc.robot;
-import com.ctre.phoenix.CANifier.LEDChannel;
 
 import edu.wpi.first.wpilibj.SerialPort;
 
@@ -87,31 +86,15 @@ public class RobotMap {
       leftVictor1 = 5,
       leftVictor2 = 6,
       rightVictor1 = 2,
-      rightVictor2 = 3,
-
-      //SENSOR PORTS
-      lineSensorFrontLeft = 4,  
-      lineSensorFrontCenter = 5,
-      lineSensorFrontRight = 6,
-      frontUltrasonicSensor = 0, 
-      frontInfraredSensor = 2,  
-
-      lineSensorBackLeft = 2,    
-      lineSensorBackCenter = 1,  
-      lineSensorBackRight = 3,   
-      backInfraredSensor = 3,  
-
-
+      rightVictor2 = 3, 
 
       //BALL PORTS
       ballMotor = 12,
-      // ball sensor on the arm canifier rev limit switch connection 
 
       //HATCH PORTS
       hatchSolenoid = 1,
   
       //ARM PORTS
-      discBrake = 2, 
       armSpark = 62,
       armCanifier = 23,
 
@@ -126,18 +109,8 @@ public class RobotMap {
       rearGearPiston = 3,
       rearGearFloorSensor = 0,
 
-      //CAMERA PORTS
-      frontPanServo = 9,
-      frontTiltServo = 8,
-      backPanServo = 1,
-      backTiltServo = 0,
-
       // placeholder so we can always just end with commas :-)
       end_of_ports = 999;
-      
-    public static LEDChannel
-      frontLightRing = LEDChannel.LEDChannelA,
-      backLightRing = LEDChannel.LEDChannelC;
   }
 
   public static class Values {
@@ -165,30 +138,11 @@ public class RobotMap {
       inchesPerTick = (wheelDiameter*Math.PI)/4096, //inches per encoder tick
       ticksPerFoot = ((49152/(wheelDiameter*Math.PI)))*.9, //3940, //encoder ticks per foot
 
-      //INFRARED DISTANCES for Line Following
-      frontUltrasonicSensorHatchCargoship = 91,     
-      frontInfraredSensorHatchCargoship = 550,      
-      frontUltrasonicSensorHatchRocket = 5,  
-      frontInfraredSensorHatchRocket = 5,
-      frontUltrasonicSensorBallCargoship = 5,      
-      frontInfraredSensorBallCargoship = 5,      
-      frontUltrasonicSensorBallRocket = 5,   
-      frontInfraredSensorBallRocket = 5,  
-      backInfraredSensorHatchCargoship = 1200,  
-      backInfraredSensorBallRocket = 5, 
-      backInfraredSensorBallCargoship = 5,
-
-      // Line following voltage values
-      powerMotor = 0.5, 
-      noPowerMotor = -.25,
-      normal = .10,
-      straight = .3, 
-
       // Arm and Elevator Values
-      elevatorPidP = 0.0006, 
-      elevatorPidI = 0.0000000001,
-      elevatorPidD = 0.006,
-      elevatorPidF = 0.0000,
+      elevatorPidP = 0, //0.0006, 
+      elevatorPidI = 0, //0.0000000001,
+      elevatorPidD = 0, //0.006,
+      elevatorPidF = 0, //0.0000,
       elevatorPidFMax = 0,
       elevatorTopHeight = 100000000, //placeholder
 
@@ -215,27 +169,12 @@ public class RobotMap {
       topElevatorAccelPosLimit = 49000,
       topElevatorLimitVelocity = 0.4,
 
-      //PathFnder values
-      pf_timestep = 0.02,
-      pf_max_vel = 2.5, // max velocity in m/sec.
-      pf_max_acc = 6.79,
-      pf_max_jerk = 60,
-      pf_Kp = 0.001,
-      pf_Ki = 0.0,
-      pf_Kd = 0.06,
-      pf_Kv = (1/pf_max_vel),
-      pf_Ka = 0.0,
-      //pf_Kt = 0.35,
-
       internalFlipTickCount = 118428, // Temp Number
 
       robotLength = 0.75, //in inches (includes bumpers)
       robotWidth = 0.8,	
       robotWheelBase = 0.62, // inches or 2.5ft or 0.6 meters.  Use 0.0254 meters/in or 39.37in/m
       robotWheelDia = 0.15;// Javadocs requests that this is in meters not feet-> 6/12; // remember all pf variables are in ft.  Need to convert when used.
-      
-    public static boolean
-      pf_path_ready = false;
   }
 
   public static class ElevatorHeights {

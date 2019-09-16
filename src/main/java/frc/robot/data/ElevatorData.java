@@ -12,7 +12,7 @@ package frc.robot.data;
  */
 public class ElevatorData {
 
-  public double output, current, ticks, velocity, position;
+  public double output, current, velocity, position, setpoint;
   public boolean bottom, top;
 
 }

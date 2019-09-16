@@ -16,16 +16,16 @@ import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.commands.*;
+import frc.robot.data.ArmData;
+import frc.robot.data.ElevatorData;
 import frc.robot.subsystems.Logger;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.BallManipulator;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.HatchManipulator;
-import frc.robot.subsystems.InfraredRangeFinder;
 import frc.robot.subsystems.LiftGear;
 import frc.robot.subsystems.LimeLight;
-import frc.robot.subsystems.LineDetector;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -47,8 +47,6 @@ public class Robot extends TimedRobot {
   //public static CameraServer cameraServer; uncomment if camera exists
   public static Logger logger;
   public static PowerDistributionPanel pdp;
-  public static LineDetector frontLineDetector;
-  public static InfraredRangeFinder frontInfraredRangeFinder;
   public static CANifier armCanifier;
   public static CANifier elevatorCanifier;
   public static LimeLight limeLight;
@@ -58,6 +56,9 @@ public class Robot extends TimedRobot {
   private double lastTime = 0; // millis seconds
   private static double deltaTime = 0; // seconds
   private int loopCount = 0, executeLoopCount = 30;
+  public ElevatorData e;
+  public ArmData a;
+
 
   Command autonomousCommand;
   SendableChooser<AutonomousOptions> chooser = new SendableChooser<>();
@@ -70,8 +71,6 @@ public class Robot extends TimedRobot {
   public void robotInit() {
     //cameraServer = CameraServer.getInstance(); uncomment if camera exists
     //cameraServer.startAutomaticCapture(0); uncomment if camera exists
-    armCanifier = new CANifier(RobotMap.Ports.armCanifier);
-    elevatorCanifier = new CANifier(RobotMap.Ports.elevatorCanifier);
     arm = new Arm();
     ballManipulator = new BallManipulator();
     pdp = new PowerDistributionPanel();
@@ -101,6 +100,9 @@ public class Robot extends TimedRobot {
     chooser.addOption("TestMotionProfile", AutonomousOptions.TestMotionProfile);
     SmartDashboard.putData("Auto mode", chooser);
 
+    a = new ArmData();
+    e = new ElevatorData();
+
     // Make these last so to chase away the dreaded null subsystem errors!
     oi = new OI();
   }
@@ -108,6 +110,8 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     if (loopCount > executeLoopCount) {
+      Robot.elevator.getElevatorData(e);
+      Robot.arm.getArmData(a);
       updateSmartDashboard();
       loopCount = 0;
     } else {
@@ -241,8 +245,8 @@ public class Robot extends TimedRobot {
   public void updateSmartDashboard() {
     //liftGear.updateSmartDashboard();
     //driveTrain.updateSmartDashboard();
-    //arm.updateSmartDashboard();
-    //elevator.updateSmartDashboard();
+    arm.updateSmartDashboard();
+    elevator.updateSmartDashboard();
     //frontLineDetector.updateSmartDashboard();
     //frontInfraredRangeFinder.updateSmartDashboard();
     SmartDashboard.putNumber("Delta Time", deltaTime);
