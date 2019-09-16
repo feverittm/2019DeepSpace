@@ -12,7 +12,15 @@ package frc.robot.data;
  */
 public class ElevatorData {
 
-  public double output, current, velocity, position, setpoint;
-  public boolean bottom, top;
+  private static ElevatorData instance;
 
+  public static double output, current, velocity, height, setpoint;
+  public static boolean bottom, top;
+
+  public static ElevatorData getInstance() {
+    if (instance == null) {
+      instance = new ElevatorData();
+    }
+    return instance;
+  }
 }

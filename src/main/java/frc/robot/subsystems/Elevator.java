@@ -236,14 +236,13 @@ public class Elevator extends PIDSubsystem {
   }
 
   public void getElevatorData(ElevatorData e) {
-    e.output = master.getAppliedOutput();
-    e.current = master.getOutputCurrent();
-    e.position = GetPosition();
-    e.velocity = elevatorCanifier.getQuadratureVelocity();
-    e.bottom = GetBottomLimitSwitch();
-    e.top = limitSwitchTop.get();
-    e.position = GetPosition();
-    e.setpoint = pidController.getSetpoint();
+    ElevatorData.output = master.getAppliedOutput();
+    ElevatorData.current = master.getOutputCurrent();
+    ElevatorData.height = GetPosition();
+    ElevatorData.velocity = elevatorCanifier.getQuadratureVelocity();
+    ElevatorData.bottom = GetBottomLimitSwitch();
+    ElevatorData.top = limitSwitchTop.get();
+    ElevatorData.setpoint = pidController.getSetpoint();
   }
 
   public void updateSmartDashboard() {

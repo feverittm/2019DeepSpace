@@ -56,9 +56,8 @@ public class Robot extends TimedRobot {
   private double lastTime = 0; // millis seconds
   private static double deltaTime = 0; // seconds
   private int loopCount = 0, executeLoopCount = 30;
-  public ElevatorData e;
+  public static ElevatorData e;
   public ArmData a;
-
 
   Command autonomousCommand;
   SendableChooser<AutonomousOptions> chooser = new SendableChooser<>();
@@ -79,6 +78,7 @@ public class Robot extends TimedRobot {
     liftGear = new LiftGear();
     driveTrain = new DriveTrain();
     limeLight = new LimeLight();
+    e = new ElevatorData();
 
     // Create the logging instance so we can use it for tuning the PID subsystems
     logger = Logger.getInstance();
@@ -101,7 +101,6 @@ public class Robot extends TimedRobot {
     SmartDashboard.putData("Auto mode", chooser);
 
     a = new ArmData();
-    e = new ElevatorData();
 
     // Make these last so to chase away the dreaded null subsystem errors!
     oi = new OI();
