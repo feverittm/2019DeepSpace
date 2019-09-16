@@ -235,7 +235,7 @@ public class Elevator extends PIDSubsystem {
     // setDefaultCommand(new LockElevator());
   }
 
-  public void getElevatorData(ElevatorData e) {
+  public void getElevatorData() {
     ElevatorData.output = master.getAppliedOutput();
     ElevatorData.current = master.getOutputCurrent();
     ElevatorData.height = GetPosition();

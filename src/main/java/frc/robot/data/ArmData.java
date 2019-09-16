@@ -11,8 +11,16 @@ package frc.robot.data;
  * Add your docs here.
  */
 public class ArmData {
+  private static ArmData instance;
 
-  public double output, current, ticks, velocity, angle;
-  public boolean front, back;
+  public static double output, current, ticks, velocity, angle;
+  public static boolean front, back;
+
+  public static ArmData getInstance() {
+    if (instance == null) {
+      instance = new ArmData();
+    }
+    return instance;
+  }
 
 }

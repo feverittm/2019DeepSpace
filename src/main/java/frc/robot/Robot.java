@@ -16,8 +16,6 @@ import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.commands.*;
-import frc.robot.data.ArmData;
-import frc.robot.data.ElevatorData;
 import frc.robot.subsystems.Logger;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
@@ -56,8 +54,6 @@ public class Robot extends TimedRobot {
   private double lastTime = 0; // millis seconds
   private static double deltaTime = 0; // seconds
   private int loopCount = 0, executeLoopCount = 30;
-  public static ElevatorData e;
-  public ArmData a;
 
   Command autonomousCommand;
   SendableChooser<AutonomousOptions> chooser = new SendableChooser<>();
@@ -78,7 +74,6 @@ public class Robot extends TimedRobot {
     liftGear = new LiftGear();
     driveTrain = new DriveTrain();
     limeLight = new LimeLight();
-    e = new ElevatorData();
 
     // Create the logging instance so we can use it for tuning the PID subsystems
     logger = Logger.getInstance();
@@ -100,8 +95,6 @@ public class Robot extends TimedRobot {
     chooser.addOption("TestMotionProfile", AutonomousOptions.TestMotionProfile);
     SmartDashboard.putData("Auto mode", chooser);
 
-    a = new ArmData();
-
     // Make these last so to chase away the dreaded null subsystem errors!
     oi = new OI();
   }
@@ -109,8 +102,8 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     if (loopCount > executeLoopCount) {
-      Robot.elevator.getElevatorData(e);
-      Robot.arm.getArmData(a);
+      Robot.elevator.getElevatorData();
+      Robot.arm.getArmData();
       updateSmartDashboard();
       loopCount = 0;
     } else {

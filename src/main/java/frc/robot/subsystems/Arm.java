@@ -126,12 +126,12 @@ public class Arm extends PIDSubsystem {
     //setDefaultCommand(new LockArm());
   }
 
-  public void getArmData(ArmData a) {
-    a.output = sparkMax.getAppliedOutput();
-    a.current = sparkMax.getOutputCurrent();
-    a.ticks = readEncoder();
-    a.velocity = 0;
-    a.angle = readEncoder();
+  public void getArmData() {
+    ArmData.output = sparkMax.getAppliedOutput();
+    ArmData.current = sparkMax.getOutputCurrent();
+    ArmData.ticks = readEncoder();
+    ArmData.velocity = 0;
+    ArmData.angle = readEncoder();
   }
 
   public void updateSmartDashboard() {
