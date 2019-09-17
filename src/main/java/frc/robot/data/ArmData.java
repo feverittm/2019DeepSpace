@@ -13,7 +13,7 @@ package frc.robot.data;
 public class ArmData {
   private static ArmData instance;
 
-  public static double output, current, ticks, velocity, angle;
+  public static double output, current, raw_encoder, velocity, angle, setpoint;
   public static boolean front, back;
 
   public static ArmData getInstance() {

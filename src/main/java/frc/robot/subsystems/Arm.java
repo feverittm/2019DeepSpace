@@ -129,7 +129,8 @@ public class Arm extends PIDSubsystem {
   public void getArmData() {
     ArmData.output = sparkMax.getAppliedOutput();
     ArmData.current = sparkMax.getOutputCurrent();
-    ArmData.ticks = readEncoder();
+    ArmData.setpoint = pidController.getSetpoint();
+    ArmData.raw_encoder = getRawEncoder();
     ArmData.velocity = 0;
     ArmData.angle = readEncoder();
   }

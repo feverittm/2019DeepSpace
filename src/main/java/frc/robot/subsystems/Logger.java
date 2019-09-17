@@ -15,7 +15,9 @@ import java.io.IOException;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
+import frc.robot.data.ArmData;
 import frc.robot.data.ElevatorData;
+
 public class Logger {
 
   private BufferedWriter writer;
@@ -76,8 +78,10 @@ public class Logger {
       try {
         path = this.getPath();
         this.writer = new BufferedWriter(new FileWriter(path));
-        //this.writer.write("time,voltage,output,current,left_ticks,right_ticks,left_velocity,right_velocity, pf_left, pf_right, heading, desired_heading, turn, left_drive, right_drive");
-        this.writer.write("time,voltage,output,current,height,setpoint");
+        // this.writer.write("time,voltage,output,current,left_ticks,right_ticks,left_velocity,right_velocity,
+        // pf_left, pf_right, heading, desired_heading, turn, left_drive, right_drive");
+        this.writer.write(
+            "time,voltage,elevator_output,elevator_current,height,elevator_setpoint,arm_output,arm_current,arm_angle,arm_setpoint,arm_raw_encoder");
         this.writer.newLine();
         this.startTime = System.currentTimeMillis();
       } catch (IOException e) {
@@ -109,19 +113,31 @@ public class Logger {
         this.writer.write(String.format(",%.3f", ElevatorData.current));
         this.writer.write(String.format(",%.3f", ElevatorData.height));
         this.writer.write(String.format(",%.3f", ElevatorData.setpoint));
-        //this.writer.write(String.format(",%.3f", Robot.pdp.getTotalCurrent()));
-        //this.writer.write(String.format(",%.3f", Robot.driveTrain.leftEncoderTicks()));
-        //this.writer.write(String.format(",%.3f", Robot.driveTrain.rightEncoderTicks()));
-        //this.writer.write(String.format(",%.3f", Robot.driveTrain.leftEncoderVelocity()));
-        //this.writer.write(String.format(",%.3f", Robot.driveTrain.rightEncoderVelocity()));
-        /*this.writer.write(String.format(",%.3f", Robot.motionProfile.left_speed));
-        this.writer.write(String.format(",%.3f", Robot.motionProfile.right_speed));
-        this.writer.write(String.format(",%.3f", Robot.motionProfile.heading));
-        this.writer.write(String.format(",%.3f", Robot.motionProfile.desired_heading));
-        this.writer.write(String.format(",%.3f", Robot.motionProfile.turn));
-        this.writer.write(String.format(",%.3f", Robot.motionProfile.left_drive));
-        this.writer.write(String.format(",%.3f", Robot.motionProfile.right_drive));*/
+        this.writer.write(String.format(",%.3f", ArmData.output));
+        this.writer.write(String.format(",%.3f", ArmData.current));
+        this.writer.write(String.format(",%.3f", ArmData.angle));
+        this.writer.write(String.format(",%.3f", ArmData.setpoint));
+        this.writer.write(String.format(",%.3f", ArmData.raw_encoder));
 
+        // this.writer.write(String.format(",%.3f", Robot.pdp.getTotalCurrent()));
+        // this.writer.write(String.format(",%.3f",
+        // Robot.driveTrain.leftEncoderTicks()));
+        // this.writer.write(String.format(",%.3f",
+        // Robot.driveTrain.rightEncoderTicks()));
+        // this.writer.write(String.format(",%.3f",
+        // Robot.driveTrain.leftEncoderVelocity()));
+        // this.writer.write(String.format(",%.3f",
+        // Robot.driveTrain.rightEncoderVelocity()));
+        /*
+         * this.writer.write(String.format(",%.3f", Robot.motionProfile.left_speed));
+         * this.writer.write(String.format(",%.3f", Robot.motionProfile.right_speed));
+         * this.writer.write(String.format(",%.3f", Robot.motionProfile.heading));
+         * this.writer.write(String.format(",%.3f",
+         * Robot.motionProfile.desired_heading));
+         * this.writer.write(String.format(",%.3f", Robot.motionProfile.turn));
+         * this.writer.write(String.format(",%.3f", Robot.motionProfile.left_drive));
+         * this.writer.write(String.format(",%.3f", Robot.motionProfile.right_drive));
+         */
 
         this.writer.newLine();
       } catch (IOException e) {
