@@ -35,7 +35,6 @@ public class RobotMap {
   public static class Buttons {
     public static class Logitech {
       public static int 
-        Gamepad4 = 3,
         buttonA = 2,
         buttonB = 3,
         buttonX = 1,

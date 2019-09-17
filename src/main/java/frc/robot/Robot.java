@@ -37,13 +37,13 @@ public class Robot extends TimedRobot {
 
   public static final boolean DEBUG = true;
 
-  public static Arm arm;             
+  public static Arm arm;
   public static Elevator elevator;
   public static BallManipulator ballManipulator;
   public static HatchManipulator hatchManipulator;
   public static LiftGear liftGear;
   public static DriveTrain driveTrain;
-  //public static CameraServer cameraServer; uncomment if camera exists
+  // public static CameraServer cameraServer; uncomment if camera exists
   public static Logger logger;
   public static ArmData armData;
   public static ElevatorData elevatorData;
@@ -56,7 +56,8 @@ public class Robot extends TimedRobot {
 
   private double lastTime = 0; // millis seconds
   private static double deltaTime = 0; // seconds
-  private int loopCount = 0, executeLoopCount = 30;
+  private int loopCount = 0, executeLoopCount = 50;
+  public boolean log_data = true;
 
   Command autonomousCommand;
   SendableChooser<AutonomousOptions> chooser = new SendableChooser<>();
@@ -67,8 +68,8 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-    //cameraServer = CameraServer.getInstance(); uncomment if camera exists
-    //cameraServer.startAutomaticCapture(0); uncomment if camera exists
+    // cameraServer = CameraServer.getInstance(); uncomment if camera exists
+    // cameraServer.startAutomaticCapture(0); uncomment if camera exists
     arm = new Arm();
     ballManipulator = new BallManipulator();
     pdp = new PowerDistributionPanel();
@@ -100,6 +101,9 @@ public class Robot extends TimedRobot {
     chooser.addOption("TestMotionProfile", AutonomousOptions.TestMotionProfile);
     SmartDashboard.putData("Auto mode", chooser);
 
+    // open a new logging file:
+    logger.openFile();
+
     // Make these last so to chase away the dreaded null subsystem errors!
     oi = new OI();
   }
@@ -119,6 +123,8 @@ public class Robot extends TimedRobot {
     lastTime = System.currentTimeMillis();
 
     boolean safe = elevator.GetPosition() > RobotMap.Values.armSwitchHeight + 2000;
+
+    SmartDashboard.putBoolean("Log?", log_data);
     SmartDashboard.putBoolean("wtf/Safe?", safe);
   }
 
@@ -148,63 +154,71 @@ public class Robot extends TimedRobot {
       // should be logged...
       autonomousCommand = new AutoDoNothing();
     } else {
-      // You can call cameraControlStateMachine.autoLockRight(), 
-      // cameraControlStateMachine.autoLockLeft(), or cameraControlStateMachine.autoLock()
-      // from your commands if you want to sandwich in vision autolocking after initial
-      // motion profile driving. Once initiated, then in a subsequent command to perform
-      // auto-drive based on vision feedback, use if (cameraControlStateMachine.getState() == CameraControlStateMachine.State.AutoLocked)
-      // conditional to determine if target is locked. Finally, use cameraControlStateMachine.getSelectedTarget() to get information
-      // about target. This function goes to network tables for you and gets the information about the lock on target
-      // as documented here: https://github.com/Team997Coders/2019DSHatchFindingVision/tree/master/CameraVision
-      switch(autonomousOption) {
-        case LeftCargoShip:
-          autonomousCommand = new AutoDoNothing();
-          break;
-        case RightCargoShip:
-          autonomousCommand = new AutoDoNothing();
-          //new Hab1ToCargoShipEndRightSide();
-          break;
-        case LeftBottomRocket:
-          autonomousCommand = new AutoDoNothing();
-          break;
-        case RightBottomRocket:
-          autonomousCommand = new AutoDoNothing();
-          break;
-        case DoNothing:
-          autonomousCommand = new AutoDoNothing();
-          break;
-        case DriveOffHab1:
-          autonomousCommand = new PDriveToDistance(0.4, 4);
-          break;
-        case DriveOffHab2:
-          autonomousCommand = new PDriveToDistance(0.4, 9);
-          break;
-        case TestMotionProfile:
-          autonomousCommand = new AutoDoNothing();//FollowPath(PathManager.getInstance().profiles.get(3));
-          break;
-        default:
-          autonomousCommand = new AutoDoNothing();
+      // You can call cameraControlStateMachine.autoLockRight(),
+      // cameraControlStateMachine.autoLockLeft(), or
+      // cameraControlStateMachine.autoLock()
+      // from your commands if you want to sandwich in vision autolocking after
+      // initial
+      // motion profile driving. Once initiated, then in a subsequent command to
+      // perform
+      // auto-drive based on vision feedback, use if
+      // (cameraControlStateMachine.getState() ==
+      // CameraControlStateMachine.State.AutoLocked)
+      // conditional to determine if target is locked. Finally, use
+      // cameraControlStateMachine.getSelectedTarget() to get information
+      // about target. This function goes to network tables for you and gets the
+      // information about the lock on target
+      // as documented here:
+      // https://github.com/Team997Coders/2019DSHatchFindingVision/tree/master/CameraVision
+      switch (autonomousOption) {
+      case LeftCargoShip:
+        autonomousCommand = new AutoDoNothing();
+        break;
+      case RightCargoShip:
+        autonomousCommand = new AutoDoNothing();
+        // new Hab1ToCargoShipEndRightSide();
+        break;
+      case LeftBottomRocket:
+        autonomousCommand = new AutoDoNothing();
+        break;
+      case RightBottomRocket:
+        autonomousCommand = new AutoDoNothing();
+        break;
+      case DoNothing:
+        autonomousCommand = new AutoDoNothing();
+        break;
+      case DriveOffHab1:
+        autonomousCommand = new PDriveToDistance(0.4, 4);
+        break;
+      case DriveOffHab2:
+        autonomousCommand = new PDriveToDistance(0.4, 9);
+        break;
+      case TestMotionProfile:
+        autonomousCommand = new AutoDoNothing();// FollowPath(PathManager.getInstance().profiles.get(3));
+        break;
+      default:
+        autonomousCommand = new AutoDoNothing();
       }
     }
-    //autonomousCommand.start();
+    // autonomousCommand.start();
 
-    //Scheduler.getInstance().add(new Hab1ToCargoRightRocketLow());
+    // Scheduler.getInstance().add(new Hab1ToCargoRightRocketLow());
   }
 
   @Override
   public void autonomousPeriodic() {
     Scheduler.getInstance().run();
 
-    //oi.reconfigureButtons();
+    // oi.reconfigureButtons();
   }
 
   @Override
   public void teleopInit() {
 
-    //elevator.resetElevatorEncoder();
+    // elevator.resetElevatorEncoder();
 
     // Init hatch target finding vision camera
-    //cameraControlStateMachine.identifyTargets();
+    // cameraControlStateMachine.identifyTargets();
 
     // This makes sure that the autonomous stops running when
     // teleop starts running. If you want the autonomous to
@@ -226,28 +240,37 @@ public class Robot extends TimedRobot {
   /**
    * This function is called periodically during operator control.
    */
-
   @Override
   public void teleopPeriodic() {
+    if (loopCount > executeLoopCount) {
+      logger.logAll();
+    }
+
     Scheduler.getInstance().run();
-    //elevator.ZeroElevator();
+    // elevator.ZeroElevator();
   }
 
   @Override
   public void testPeriodic() {
+    if (loopCount > executeLoopCount) {
+      logger.logAll();
+    }
   }
 
-  public static double getDeltaTime() { return deltaTime; }
+  public static double getDeltaTime() {
+    return deltaTime;
+  }
 
   public void updateSmartDashboard() {
-    //liftGear.updateSmartDashboard();
-    //driveTrain.updateSmartDashboard();
+    // liftGear.updateSmartDashboard();
+    // driveTrain.updateSmartDashboard();
     arm.updateSmartDashboard();
     elevator.updateSmartDashboard();
-    //frontLineDetector.updateSmartDashboard();
-    //frontInfraredRangeFinder.updateSmartDashboard();
+    // frontLineDetector.updateSmartDashboard();
+    // frontInfraredRangeFinder.updateSmartDashboard();
     SmartDashboard.putNumber("Delta Time", deltaTime);
-    //SmartDashboard.putBoolean("Paths Loaded", PathManager.getInstance().isLoaded());
+    // SmartDashboard.putBoolean("Paths Loaded",
+    // PathManager.getInstance().isLoaded());
   }
 
   public void updateSmartDashboardRequired() {
@@ -256,8 +279,7 @@ public class Robot extends TimedRobot {
   }
 
   public enum AutonomousOptions {
-    LeftCargoShip, RightCargoShip, LeftBottomRocket,
-    RightBottomRocket, DoNothing, DriveOffHab1,
-    DriveOffHab2, TestMotionProfile
+    LeftCargoShip, RightCargoShip, LeftBottomRocket, RightBottomRocket, DoNothing, DriveOffHab1, DriveOffHab2,
+    TestMotionProfile
   }
 }

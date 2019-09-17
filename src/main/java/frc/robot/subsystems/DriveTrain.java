@@ -32,10 +32,7 @@ public class DriveTrain extends Subsystem {
   public double maxSpeed = 0.5;
 
   // Decell Data
-  public double ramp = 1.1;
   private double prevY = 0;
-  private double init_angle;
-  public boolean gyropresent = false;
 
   // GearBox class stores information for the motor controllers for one gearbox
   private final WPI_TalonSRX leftTalon, rightTalon;
@@ -50,27 +47,12 @@ public class DriveTrain extends Subsystem {
   public DriveTrain() {
     // This uses the RoboMisc function standTalonSRXSetup(int, int, int, boolean) to
     // initialize a Talon and 2 slave victors
-    this(RoboMisc.standTalonSRXSetup(RobotMap.Ports.leftTalon, 
-        RobotMap.Ports.leftVictor1,
-        RobotMap.Ports.leftVictor2, 
-        false),
-      RoboMisc.standTalonSRXSetup(RobotMap.Ports.rightTalon, 
-        RobotMap.Ports.rightVictor1,
-        RobotMap.Ports.rightVictor2, 
-        true),
-      null,
-      NetworkTableInstance.getDefault().getTable("SmartDashboard")
-    );
-  }
-
-  public void resetGyro() {
-    if (gyro != null) {
-      gyro.reset();
-    init_angle = gyro.getAngle();
-      gyro.zeroYaw();
-    } else {
-      //programmer.sadness()
-    }
+    this(
+        RoboMisc.standTalonSRXSetup(RobotMap.Ports.leftTalon, RobotMap.Ports.leftVictor1, RobotMap.Ports.leftVictor2,
+            false),
+        RoboMisc.standTalonSRXSetup(RobotMap.Ports.rightTalon, RobotMap.Ports.rightVictor1, RobotMap.Ports.rightVictor2,
+            true),
+        null, NetworkTableInstance.getDefault().getTable("SmartDashboard"));
   }
 
   /**
@@ -81,12 +63,10 @@ public class DriveTrain extends Subsystem {
    * @param gyro
    * @param smartDashboardNetworkTable
    */
-  public DriveTrain(GearBox leftBox, 
-      GearBox rightBox, 
-      AHRS gyro,
-      NetworkTable smartDashboardNetworkTable) {
+  public DriveTrain(GearBox leftBox, GearBox rightBox, AHRS gyro, NetworkTable smartDashboardNetworkTable) {
 
-    // Grab the objects created by the RoboMisc function and store them in this class
+    // Grab the objects created by the RoboMisc function and store them in this
+    // class
     leftTalon = leftBox.talon;
     rightTalon = rightBox.talon;
     leftVictor1 = leftBox.victor1;
@@ -96,25 +76,54 @@ public class DriveTrain extends Subsystem {
 
     if (gyro == null) {
       try {
-        this.gyro = new AHRS(RobotMap.Ports.AHRS);
-        System.out.println("ahrs is coolio!");
-        this.gyro.reset();
-        this.gyro.zeroYaw();
-        init_angle = this.gyro.getAngle();
-        gyropresent = true;
+        gyro = new AHRS(RobotMap.Ports.AHRS);
       } catch (RuntimeException e) {
         System.out.println("DT- The gyro broke.");
         gyro = null;
       }
-    } else {
-      this.gyro = gyro;
-      this.gyro.reset();
     }
 
+    resetGyro();
     resetEncoders();
     setCoast();
 
     table = smartDashboardNetworkTable;
+  }
+
+  /**
+   * reset the gyro and the class variables this can be called any time.
+   * 
+   */
+  public void resetGyro() {
+    if (gyro != null) {
+      gyro.reset();
+      gyro.zeroYaw();
+    } else {
+      // programmer.sadness()
+    }
+  }
+
+  /**
+   * @return full angle of the robot (0-360)
+   */
+  public double getGyroAngle() {
+    if (gyro != null) {
+      return gyro.getFusedHeading();
+    } else {
+      return 0;
+    }
+  }
+
+  /**
+   * @return simple heading (-180<>+180) of robot.  Sometimes
+   * this is more useful for driving corrections
+   */
+  public double getHeading() {
+    if (gyro != null) {
+      return (gyro.getYaw());
+    } else {
+      return 0.0;
+    }
   }
 
   /**
@@ -128,17 +137,10 @@ public class DriveTrain extends Subsystem {
     rightTalon.set(ControlMode.PercentOutput, right);
   }
 
-  public double getGyroAngle(){
-    if (gyro != null){
-    return gyro.getAngle() % 360;
-    //return (gyro.getAngle()-Math.floor(gyro.getAngle()/360)*360);
-    //Not TESTED
-  } else{
-    return 0;
-  }
-}
   /**
-   * Sets the percentage input for the left and right talon to zero
+   * Stop the Robot!
+   * Sets the percentage output for the drivetrain motor controllers
+   * for the left and right side talons to zero
    */
   public void stopVolts() {
     // Set Motor Volts to 0
@@ -146,15 +148,22 @@ public class DriveTrain extends Subsystem {
     rightTalon.set(ControlMode.PercentOutput, 0);
   }
 
-  public void setRampArcadeVolts(double front, double turn) {
-    double newY = front;
+  /**
+   * Acceleration mode drive.  Set-up a reasonable linear accel
+   * profile for the drivetrain using a class supplied ramp
+   * rate.
+   * Note: prev_y is initialized in the constructor
+   */
+  public void setRampArcadeVolts(double m_ramp, double m_power, double m_turn) {
+    double newY = m_power;
 
-    //prevY = (leftTalon.getMotorOutputPercent() + rightTalon.getMotorOutputPercent()) / 2;
+    // prevY = (leftTalon.getMotorOutputPercent() +
+    // rightTalon.getMotorOutputPercent()) / 2;
 
-    double maxIncrement = Robot.getDeltaTime() * ramp;
+    double maxIncrement = Robot.getDeltaTime() * m_ramp;
 
-    if (Math.abs(front - prevY) > maxIncrement) {
-      double sign = (front - prevY) / Math.abs(front - prevY);
+    if (Math.abs(m_power - prevY) > maxIncrement) {
+      double sign = (m_power - prevY) / Math.abs(m_power - prevY);
       newY = (maxIncrement * sign) + prevY;
     }
 
@@ -162,8 +171,8 @@ public class DriveTrain extends Subsystem {
       newY = (Math.abs(newY) / newY) * maxSpeed;
     }
 
-    leftTalon.set(ControlMode.PercentOutput, newY + turn);
-    rightTalon.set(ControlMode.PercentOutput, newY - turn);
+    leftTalon.set(ControlMode.PercentOutput, newY + m_turn);
+    rightTalon.set(ControlMode.PercentOutput, newY - m_turn);
 
     prevY = newY;
   }
@@ -227,43 +236,6 @@ public class DriveTrain extends Subsystem {
     leftTalon.setSelectedSensorPosition(0, 0, 10);
     rightTalon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 0); /* PIDLoop=0,timeoutMs=0 */
     rightTalon.setSelectedSensorPosition(0, 0, 10);
-  }
-
-  public double getHeading() {
-		if (gyro != null) {
-			return( gyro.getAngle() - init_angle );
-		} else {
-			return 0.0;
-		}
-	}
-
-  /**
-   * Gets PID constants from the SmartDashboard and then uses setPIDValues(double,
-   * double, double)
-   */
-  public void setPIDValues() {
-    // Make these reference a passed in table so we can write tests.
-    double p = table.getEntry("P").getDouble(1);
-    double i = table.getEntry("I").getDouble(0);
-    double d = table.getEntry("D").getDouble(0);
-    setPIDValues(p, i, d);
-  }
-
-  /**
-   * Sets the parameter PID constants to the talons
-   * 
-   * @param p Proportional PID constant
-   * @param i Integral PID constant
-   * @param d derivative PID constant
-   */
-  public void setPIDValues(double p, double i, double d) {
-    // Calling the correct config_kx for each parameter might make this work better...;-)
-    leftTalon.config_kP(0, p, 0);
-    rightTalon.config_kP(0, p, 0);
-    leftTalon.config_kI(0, i, 0);
-    rightTalon.config_kI(0, i, 0);
-    leftTalon.config_kD(0, d, 0);
-    rightTalon.config_kD(0, d, 0);
   }
 
   /**

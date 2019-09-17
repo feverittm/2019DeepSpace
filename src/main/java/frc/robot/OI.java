@@ -26,8 +26,9 @@ public class OI {
   public JoystickButton ArmReverse; // Start 2
 
   // Commands associated with the driver's control
-  private JoystickButton deployBackLandingGear; // A 1
+  public JoystickButton toggleLight;  // A 1
   private JoystickButton deployLandingGear; // B 1
+  private JoystickButton deployBackLandingGear; // Y 1
   private JoystickButton retractLandingGear; // Back 1
   private JoystickButton limelightDrive;
 
@@ -52,6 +53,9 @@ public class OI {
 
     // flip = new JoystickButton(driver, RobotMap.Buttons.buttonX);
     // flip.whenPressed(new FlipArmChain());
+
+    toggleLight = new JoystickButton(driver, RobotMap.Buttons.buttonA);
+    toggleLight.whenPressed(new ToggleLight());
 
     limelightDrive = new JoystickButton(driver, RobotMap.Buttons.buttonStart);
     limelightDrive.whenPressed(new ApproachTarget(0.2, 19));
