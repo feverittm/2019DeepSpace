@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.buttons.JoystickButton;
 import frc.robot.commands.*;
 import frc.robot.commands.vision.*;
+import frc.robot.misc.POVTrigger;
 import frc.robot.misc.Utils;
 
 /**
@@ -24,6 +25,11 @@ public class OI {
   public JoystickButton flip;
   public JoystickButton ArmForward; // Back 2
   public JoystickButton ArmReverse; // Start 2
+
+  public POVTrigger POVUpButton; // POV UP 2 - Elevator Up
+  public POVTrigger POVDownButton; // POV Down 2 - Elevator Down
+  public POVTrigger POVLeftButton; // POV Left 2 - Arm toward Rear
+  public POVTrigger POVRightButton; // POV Right 2 - Arm toward Front
 
   // Commands associated with the driver's control
   public JoystickButton toggleLight;  // A 1
@@ -51,18 +57,30 @@ public class OI {
     retractLandingGear = new JoystickButton(driver, RobotMap.Buttons.buttonBack);
     retractLandingGear.whenPressed(new RetractLandingGear());
 
-    // flip = new JoystickButton(driver, RobotMap.Buttons.buttonX);
-    // flip.whenPressed(new FlipArmChain());
-
     toggleLight = new JoystickButton(driver, RobotMap.Buttons.buttonA);
     toggleLight.whenPressed(new ToggleLight());
 
     limelightDrive = new JoystickButton(driver, RobotMap.Buttons.buttonStart);
     limelightDrive.whenPressed(new ApproachTarget(0.2, 19));
-
+    
+    // flip = new JoystickButton(driver, RobotMap.Buttons.buttonX);
+    // flip.whenPressed(new FlipArmChain());
+    
     // #endregion
 
-    // #region Gamepad2 Controls
+    //#region Gamepad2 Controls - Operator's Controls
+    POVDownButton = new POVTrigger(operator, POVTrigger.POVStates.DOWN);
+    POVDownButton.whileHeld(new ElevatorDownity());
+
+    POVUpButton = new POVTrigger(operator, POVTrigger.POVStates.UP);
+    POVUpButton.whileHeld(new ElevatorUppity());
+
+    POVRightButton = new POVTrigger(operator, POVTrigger.POVStates.RIGHT);
+    POVRightButton.whileHeld(new MoveArm(-0.5));
+
+    POVLeftButton = new POVTrigger(operator, POVTrigger.POVStates.LEFT);
+    POVLeftButton.whileHeld(new MoveArm(0.5));
+
     elevatorGoUp = new JoystickButton(operator, RobotMap.Buttons.buttonY);
     elevatorGoUp.whileHeld(new ElevatorUppity());
 
