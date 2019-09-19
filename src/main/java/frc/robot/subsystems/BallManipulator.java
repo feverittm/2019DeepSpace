@@ -29,12 +29,14 @@ public class BallManipulator extends Subsystem {
   }
 
   public void ballIntake(){
-    //if (!Robot.arm.getForwardLimitSwitch()) {
-      //System.out.println("Intaking ball");
       ballMotor.set(ControlMode.PercentOutput, 1);
-    //} else {
-      //ballMotor.set(ControlMode.PercentOutput, 0);
-    //}
+  }
+
+  /**
+   * Hold the ball using 10% intake power
+   */
+  public void ballHold(){
+      ballMotor.set(ControlMode.PercentOutput, 0.1);
   }
 
   public void ballOuttake(){

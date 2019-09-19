@@ -16,6 +16,8 @@ import edu.wpi.first.wpilibj.command.Command;
  * Used for moving the elevator high enough to swap the arm's side if so required.
  */
 public class ElevatorToArmHeight extends Command {
+  private double m_target = RobotMap.Values.armSwitchHeight + 2250;
+  private double tolerance = RobotMap.Values.elevatorHeightAbsTolerance;
 
   public ElevatorToArmHeight() {
     requires(Robot.elevator);
@@ -32,22 +34,22 @@ public class ElevatorToArmHeight extends Command {
   // Called repeatedly when this Command is scheduled to run
   @Override
   protected void execute() {
-    Robot.elevator.SetPosition(RobotMap.Values.armSwitchHeight + 2250);
+    Robot.elevator.SetPosition(m_target);
   }
 
   // Make this return true when this Command no longer needs to run execute()
   @Override
   protected boolean isFinished() {
     //return (Math.abs(RobotMap.Values.armSwitchHeight - Robot.elevator.GetPosition()) < tolerance);
-    return (Robot.elevator.GetPosition() >= RobotMap.Values.armSwitchHeight);
+    return (Robot.elevator.GetPosition() >= (m_target - tolerance));
   }
 
   // Called once after isFinished returns true
   @Override
   protected void end() {
     System.out.println("finished arm to height");
-    Robot.elevator.SetPower(0);
     Scheduler.getInstance().add(new LockElevator());
+    Robot.elevator.SetPower(0);
   }
 
   // Called when another command which requires one or more of the same

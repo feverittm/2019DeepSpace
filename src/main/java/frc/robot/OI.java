@@ -76,22 +76,10 @@ public class OI {
     POVUpButton.whileHeld(new ElevatorUppity());
 
     POVRightButton = new POVTrigger(operator, POVTrigger.POVStates.RIGHT);
-    POVRightButton.whileHeld(new MoveArm(-0.5));
+    POVRightButton.whileHeld(new MoveArm(-0.2));
 
     POVLeftButton = new POVTrigger(operator, POVTrigger.POVStates.LEFT);
-    POVLeftButton.whileHeld(new MoveArm(0.5));
-
-    elevatorGoUp = new JoystickButton(operator, RobotMap.Buttons.buttonY);
-    elevatorGoUp.whileHeld(new ElevatorUppity());
-
-    elevatorGoDown = new JoystickButton(operator, RobotMap.Buttons.buttonX);
-    elevatorGoDown.whileHeld(new ElevatorDownity());
-
-    //ArmForward = new JoystickButton(operator, RobotMap.Buttons.buttonStart);
-    //ArmForward.whileHeld(new MoveArm(-0.2));
-
-    //ArmReverse = new JoystickButton(operator, RobotMap.Buttons.buttonBack);
-    //ArmReverse.whileHeld(new MoveArm(0.2));
+    POVLeftButton.whileHeld(new MoveArm(0.2));
 
     ballIntake = new JoystickButton(operator, RobotMap.Buttons.buttonRightShoulder);
     ballIntake.whileHeld(new BallIntake());

@@ -138,6 +138,7 @@ public class RobotMap {
       ticksPerFoot = ((49152/(wheelDiameter*Math.PI)))*.9, //3940, //encoder ticks per foot
 
       // Arm and Elevator Values
+      elevatorHeightAbsTolerance = 100,
       elevatorPidP = 0, //0.0006, 
       elevatorPidI = 0, //0.0000000001,
       elevatorPidD = 0, //0.006,
@@ -145,6 +146,7 @@ public class RobotMap {
       elevatorPidFMax = 0,
       elevatorTopHeight = 100000000, //placeholder
 
+      armAngleAbsTolerance = 50,
       armSwitchHeight= 22775, //placeholer for height in order for arm to switch
       armBackParallel = 788,
       armFrontParallel = 288,
