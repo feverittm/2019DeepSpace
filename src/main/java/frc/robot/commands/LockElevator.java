@@ -20,12 +20,8 @@ public class LockElevator extends Command {
   @Override
   protected void initialize() {
     m_position = Robot.elevator.GetPosition();
-  }
-
-  // Called repeatedly when this Command is scheduled to run
-  @Override
-  protected void execute() {
     Robot.elevator.SetPosition(m_position);
+    Robot.elevator.enable();
   }
 
   // Make this return true when this Command no longer needs to run execute()

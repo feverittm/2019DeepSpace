@@ -12,8 +12,9 @@ import frc.robot.data.ElevatorData;
 import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.command.PIDSubsystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.Robot;
 import frc.robot.RobotMap;
+import frc.robot.commands.LockElevator;
+
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.ctre.phoenix.CANifier;
 import com.revrobotics.CANDigitalInput;
@@ -30,27 +31,14 @@ public class Elevator extends PIDSubsystem {
   private CANEncoder encoder;
   private PIDController pidController;
 
-  private double rampAccel = 0.5; // Use this value to see if the elevator is actually being deccelerated
-
   private CANDigitalInput limitSwitchTop;
   private CANDigitalInput limitSwitchBottom;
   private CANifier elevatorCanifier;
-  // public int index = 0;
-  // public double[] heightList;
-  public boolean gamePieceType;
-  // This is to switch between balls and hatches for elevator heights.
-  //// Balls = true Hatches = false
-  public boolean isZeroed;
 
-  private double kP_simulation = RobotMap.Values.elevatorPidP;
-  private double kI_simulation = RobotMap.Values.elevatorPidI;
-  private double kD_simulation = RobotMap.Values.elevatorPidD;
+  public boolean isZeroed;
 
   public Elevator() {
     super("Elevator", 0, 0, 0);
-    if (Robot.isSimulation()) { // Check for simulation and update PID values
-      pidController.setPID(kP_simulation, kI_simulation, kD_simulation);
-    }
     pidController.setAbsoluteTolerance(0.005);
 
     master = new CANSparkMax(RobotMap.Ports.masterElevatorMotor, MotorType.kBrushless);
@@ -60,8 +48,8 @@ public class Elevator extends PIDSubsystem {
     follower.restoreFactoryDefaults();
 
     encoder = master.getEncoder();
-    encoder.setPosition(0);
-    encoder.setPositionConversionFactor(42);
+    //encoder.setPosition(0);
+    //encoder.setPositionConversionFactor(42);
 
     // This line must be this way now that the canifiers are shared recources
     elevatorCanifier = new CANifier(RobotMap.Ports.elevatorCanifier);
@@ -79,7 +67,7 @@ public class Elevator extends PIDSubsystem {
 
     follower.follow(master, true); // reverse the follower in the follow command
 
-    pidController.setOutputRange(-0.3, 0.5);
+    pidController.setOutputRange(-0.5, 0.5);
 
     // until we fix the bottom limit switch!
     // isZeroed = limitSwitchBottom.get();
@@ -96,30 +84,31 @@ public class Elevator extends PIDSubsystem {
     isZeroed = true;
 
     // last thing... lock elevator at the current position (the bottom for now) for the start.
-    SetPosition(GetPosition());
+    //SetPosition(GetPosition());
 
   }
 
   public double returnPIDInput() {
-    return (GetPosition());
+    return GetPosition();
   }
 
   public void usePIDOutput(double value) {
     SetPower(value);
   }
 
-  public void SetPosition(double height) {
-    // System.out.println("Set elevator to go to height " + height);
-    pidController.setSetpoint(height);
-    // updateF();
-  }
-
   public void resetElevatorEncoder() {
+    stop();
     elevatorCanifier.setQuadraturePosition(0, 10);
   }
 
   public int GetPosition() {
     return elevatorCanifier.getQuadraturePosition();
+  }
+
+  public void SetPosition(double height) {
+    // System.out.println("Set elevator to go to height " + height);
+    pidController.setSetpoint(height);
+    // updateF();
   }
 
   public double getInternalEncoderPos() {
@@ -142,7 +131,7 @@ public class Elevator extends PIDSubsystem {
     return follower.getMotorTemperature();
   }
 
-  public void Stop() {
+  public void stop() {
     pidController.disable();
     master.set(0);
   }
@@ -156,72 +145,12 @@ public class Elevator extends PIDSubsystem {
   }
 
   /**
-   * This function processes the power given and limits it based on position and
-   * current speed to determine an appropriate speed to go at for a smooth, nice
-   * elevator. It probably doesn't work... PLEASE ADJUST THE ACCELERATION INSTEAD
-   * OF DELETING / NOT USING THIS
-   * 
-   * @param pow The desired power which you shall not receive
-   * 
-   *            Timothy: Our cpu usage is hella high. Hunter: Let me run this
-   *            large processing function to determine the speed we should go at.
-   *            Timothy: but the RIO is gonna die... Hunter: ... i commented
-   *            it.... Timothy: Bad Hunter. Hunter: It's fine I'll just disable
-   *            the logger. [Tests robot] Hunter and Timothy: .... Hunter: It's
-   *            doing some weird stuff... Timothy: If only we had the logger...
-   *            >:C
-   */
-  public void setDeccelPower(double pow) {
-    double last = master.get(); // The last set power to the motor
-    double hek = pow;
-    boolean didMod = false; // Did I need to alter the power
-
-    double deltaTime = Robot.getDeltaTime();
-
-    if (Math.abs(pow) > Math.abs(last) + (rampAccel * deltaTime)) { // Did is the motor going to over accelerate?
-      hek = last + ((last / Math.abs(last)) * (rampAccel * deltaTime)); // Limit how much it changes
-      didMod = true; // Record it
-    }
-
-    if (didMod) { // Did you mod it?
-      if (hek < 0) { // Is the new values moving up
-        if ((GetPosition() < RobotMap.Values.bottomElevatorAccelPosLimit)
-            && (hek < RobotMap.Values.bottomElevatorLimitVelocity)) { // Is it approching the bottom of the elevator and
-                                                                      // is going rather fast?
-          hek = RobotMap.Values.bottomElevatorLimitVelocity; // Limit the velocity even more
-        }
-      } else if ((GetPosition() > RobotMap.Values.topElevatorAccelPosLimit)
-          && (hek > RobotMap.Values.topElevatorLimitVelocity)) { // Is it approching the top of the elevator and is
-                                                                 // going rather fast?
-        hek = RobotMap.Values.topElevatorLimitVelocity; // Limit the velocity even more
-      }
-    }
-
-    SetPower(hek); // Apply new velocity
-  }
-
-  public double CtreToSparkEncoder(double ctre) {
-    return ((ctre / 1024) / 2.5) * 42;
-  }
-
-  public void updateF() {
-    // the midpoint of the elevator pulls the constant force spring
-    // and causes a larger downward force.
-    if (GetPosition() > RobotMap.ElevatorHeights.elevatorMiddleHeight) {
-      pidController.setF(RobotMap.Values.elevatorPidFMax);
-    } else {
-      pidController.setF(RobotMap.Values.elevatorPidF);
-    }
-  }
-
-  /**
    * Reset the poistion of the elevator encoder. If the limit switches are
    * available then trigger reset using them. Otherwise assume that the initial
    * position of the elevator is at the bottom and allow a reset at that point.
    */
   public void ZeroElevator() {
     if (limitSwitchBottom.get()) {
-
       resetElevatorEncoder();
       isZeroed = true;
       // Robot.arm.setArmFrontLimit(RobotMap.Values.armFrontLower);
@@ -232,7 +161,7 @@ public class Elevator extends PIDSubsystem {
 
   @Override
   public void initDefaultCommand() {
-    // setDefaultCommand(new LockElevator());
+    setDefaultCommand(new LockElevator());
   }
 
   public void getElevatorData() {

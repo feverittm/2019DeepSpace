@@ -38,7 +38,6 @@ public class ElevatorDownity extends Command {
   // Called once after isFinished returns true
   @Override
   protected void end() {
-    Robot.elevator.SetPosition(Robot.elevator.GetPosition());
     Scheduler.getInstance().add(new LockElevator());
   }
 

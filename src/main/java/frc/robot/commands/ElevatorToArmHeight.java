@@ -29,12 +29,8 @@ public class ElevatorToArmHeight extends Command {
   // Called just before this Command runs the first time
   @Override
   protected void initialize() {
-  }
-
-  // Called repeatedly when this Command is scheduled to run
-  @Override
-  protected void execute() {
     Robot.elevator.SetPosition(m_target);
+    Robot.elevator.enable();
   }
 
   // Make this return true when this Command no longer needs to run execute()
@@ -49,7 +45,6 @@ public class ElevatorToArmHeight extends Command {
   protected void end() {
     System.out.println("finished arm to height");
     Scheduler.getInstance().add(new LockElevator());
-    Robot.elevator.SetPower(0);
   }
 
   // Called when another command which requires one or more of the same

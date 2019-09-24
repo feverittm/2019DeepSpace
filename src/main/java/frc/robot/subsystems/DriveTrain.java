@@ -3,8 +3,6 @@ package frc.robot.subsystems;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.command.Subsystem;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.Robot;
 import frc.robot.RobotMap;
 import frc.robot.commands.ArcadeDrive;
 import frc.robot.misc.GearBox;
@@ -30,9 +28,6 @@ public class DriveTrain extends Subsystem {
   public boolean decell = true;
 
   public double maxSpeed = 0.5;
-
-  // Decell Data
-  private double prevY = 0;
 
   // GearBox class stores information for the motor controllers for one gearbox
   private final WPI_TalonSRX leftTalon, rightTalon;
@@ -78,7 +73,7 @@ public class DriveTrain extends Subsystem {
       try {
         gyro = new AHRS(RobotMap.Ports.AHRS);
       } catch (RuntimeException e) {
-        System.out.println("DT- The gyro broke.");
+        System.out.println("No NavX was found on the USB port!");
         gyro = null;
       }
     }
@@ -98,8 +93,6 @@ public class DriveTrain extends Subsystem {
     if (gyro != null) {
       gyro.reset();
       gyro.zeroYaw();
-    } else {
-      // programmer.sadness()
     }
   }
 
@@ -118,7 +111,7 @@ public class DriveTrain extends Subsystem {
    * @return simple heading (-180<>+180) of robot.  Sometimes
    * this is more useful for driving corrections
    */
-  public double getHeading() {
+  public double getYaw() {
     if (gyro != null) {
       return (gyro.getYaw());
     } else {
@@ -146,46 +139,6 @@ public class DriveTrain extends Subsystem {
     // Set Motor Volts to 0
     leftTalon.set(ControlMode.PercentOutput, 0);
     rightTalon.set(ControlMode.PercentOutput, 0);
-  }
-
-  /**
-   * Acceleration mode drive.  Set-up a reasonable linear accel
-   * profile for the drivetrain using a class supplied ramp
-   * rate.
-   * Note: prev_y is initialized in the constructor
-   */
-  public void setRampArcadeVolts(double m_ramp, double m_power, double m_turn) {
-    double newY = m_power;
-
-    // prevY = (leftTalon.getMotorOutputPercent() +
-    // rightTalon.getMotorOutputPercent()) / 2;
-
-    double maxIncrement = Robot.getDeltaTime() * m_ramp;
-
-    if (Math.abs(m_power - prevY) > maxIncrement) {
-      double sign = (m_power - prevY) / Math.abs(m_power - prevY);
-      newY = (maxIncrement * sign) + prevY;
-    }
-
-    if (Math.abs(newY) > maxSpeed) {
-      newY = (Math.abs(newY) / newY) * maxSpeed;
-    }
-
-    leftTalon.set(ControlMode.PercentOutput, newY + m_turn);
-    rightTalon.set(ControlMode.PercentOutput, newY - m_turn);
-
-    prevY = newY;
-  }
-
-  /**
-   * Sets the desired tick position for the left and right talon
-   * 
-   * @param left  Desired tick position for the left talon
-   * @param right Desired tick position for the right talon
-   */
-  public void setPosition(double left, double right) {
-    leftTalon.set(ControlMode.Position, left);
-    rightTalon.set(ControlMode.Position, right);
   }
 
   /**
@@ -275,9 +228,6 @@ public class DriveTrain extends Subsystem {
     table.getEntry("Left Velocity Drivetrain").setDouble(leftEncoderVelocity());
     table.getEntry("Right Velocity Drivetrain").setDouble(rightEncoderVelocity());
     table.getEntry("Gyro angle").setDouble(getGyroAngle());
-
-    SmartDashboard.putNumber("Gyro Angle", getGyroAngle());
-    SmartDashboard.putNumber("Prev Y", prevY);
   }
 
   @Override
